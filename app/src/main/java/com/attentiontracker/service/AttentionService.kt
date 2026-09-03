@@ -138,6 +138,9 @@ class AttentionService : LifecycleService() {
 
     // ── Face result handler ───────────────────────────────────────────────────
 
+    private var isCurrentlyFacing = false
+    private var lookAwayStartTime = 0L
+
     /**
      * Called from the camera executor thread every time a frame is processed.
      * Must not touch Views directly; broadcasts are thread-safe.
@@ -147,22 +150,31 @@ class AttentionService : LifecycleService() {
         // doesn't restart behind the overlay before the user dismisses it.
         if (breakActive) return
 
+        isCurrentlyFacing = isFacing
+
         if (isFacing) {
+            lookAwayStartTime = 0L
             if (lookingStartTime == 0L) {
                 lookingStartTime = System.currentTimeMillis()
                 startCountUpTimer()
             }
-            // Elapsed broadcast is sent by the timer loop, not here
         } else {
-            resetTimer()
-            broadcastStatus(isLooking = false, elapsed = 0L)
+            if (lookingStartTime != 0L) {
+                if (lookAwayStartTime == 0L) {
+                    lookAwayStartTime = System.currentTimeMillis()
+                } else if (System.currentTimeMillis() - lookAwayStartTime > 5000L) {
+                    // Looked away for more than 5 seconds -> reset session
+                    resetTimer()
+                    broadcastStatus(isLooking = false, elapsed = 0L)
+                }
+            }
         }
     }
 
     // ── Timer logic ───────────────────────────────────────────────────────────
 
     /**
-     * Counts up every second while the user is looking at the screen.
+     * Counts up every second while the user is looking at the screen (or within the grace period).
      * Triggers [triggerBreak] when [thresholdMs] is reached.
      */
     private fun startCountUpTimer() {
@@ -171,7 +183,7 @@ class AttentionService : LifecycleService() {
             while (true) {
                 delay(1_000L)
                 val elapsed = System.currentTimeMillis() - lookingStartTime
-                broadcastStatus(isLooking = true, elapsed = elapsed / 1_000L)
+                broadcastStatus(isLooking = isCurrentlyFacing, elapsed = elapsed / 1_000L)
                 if (elapsed >= thresholdMs) {
                     triggerBreak()
                     break
@@ -184,6 +196,7 @@ class AttentionService : LifecycleService() {
         timerJob?.cancel()
         timerJob = null
         lookingStartTime = 0L
+        lookAwayStartTime = 0L
     }
 
     private fun triggerBreak() {

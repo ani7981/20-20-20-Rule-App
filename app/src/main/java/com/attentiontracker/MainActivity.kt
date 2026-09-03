@@ -18,6 +18,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -562,18 +564,27 @@ fun DashboardScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // ── Tracking button (above charts) ──
+            val buttonColor by animateColorAsState(
+                targetValue = if (isTracking) Color(0xFFE53935) else AccentCyan,
+                label = "buttonColor"
+            )
+            val textColor by animateColorAsState(
+                targetValue = if (isTracking) Color.White else DarkNavy,
+                label = "textColor"
+            )
+
             Button(
                 onClick = onToggleTracking,
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = AccentCyan),
+                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
                     .height(56.dp)
             ) {
                 Text(
-                    text = if (isTracking) "Stop Tracking" else "Start Attention Tracking",
-                    color = DarkNavy,
+                    text = if (isTracking) "Stop" else "Start Monitoring",
+                    color = textColor,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -583,7 +594,7 @@ fun DashboardScreen(
 
             // ── Screen Time Section ──
             Text(
-                text = "App wise",
+                text = "App Wise Screen Time:",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = OnSurface,
