@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,6 +19,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -30,12 +32,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -50,7 +56,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-data class AppUsage(val packageName: String, val timeMs: Long, val label: String)
+data class AppUsage(val packageName: String, val timeMs: Long, val label: String, val icon: android.graphics.drawable.Drawable? = null)
 
 fun hasUsageStatsPermission(context: Context): Boolean {
     val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
@@ -77,13 +83,14 @@ fun getTodayUsageStats(context: Context): List<AppUsage> {
     val pm = context.packageManager
     return usageStatsList
         .filter { it.totalTimeInForeground > 0 }
-        .map {
-            val label = try {
-                pm.getApplicationInfo(it.packageName, PackageManager.GET_META_DATA).loadLabel(pm).toString()
-            } catch (e: Exception) {
-                it.packageName
+        .mapNotNull {
+            val appInfo = try { pm.getApplicationInfo(it.packageName, 0) } catch (e: Exception) { null }
+            if (appInfo == null) null // Filter out deleted/uninstalled apps
+            else {
+                val label = appInfo.loadLabel(pm).toString()
+                val icon = try { pm.getApplicationIcon(it.packageName) } catch (e: Exception) { null }
+                AppUsage(it.packageName, it.totalTimeInForeground, label, icon)
             }
-            AppUsage(it.packageName, it.totalTimeInForeground, label)
         }
         .sortedByDescending { it.timeMs }
         .take(5)
@@ -122,8 +129,8 @@ fun getTimeOfDayUsage(context: Context): List<TimeOfDayUsage> {
     val bucketMs = LongArray(4) { 0L }
 
     val event = android.app.usage.UsageEvents.Event()
-    var lastForegroundTime = -1L
-    var lastPkg = ""
+    var currentForegroundApp: String? = null
+    var lastEventTime = -1L
 
     while (events.hasNextEvent()) {
         events.getNextEvent(event)
@@ -131,31 +138,44 @@ fun getTimeOfDayUsage(context: Context): List<TimeOfDayUsage> {
         val type = event.eventType
 
         if (type == android.app.usage.UsageEvents.Event.MOVE_TO_FOREGROUND) {
-            lastForegroundTime = ts
-            lastPkg = event.packageName
-        } else if (type == android.app.usage.UsageEvents.Event.MOVE_TO_BACKGROUND && lastForegroundTime > 0) {
-            val duration = ts - lastForegroundTime
-            if (duration > 0) {
-                // Attribute this usage interval to the correct bucket
-                val eventCal = Calendar.getInstance()
-                eventCal.timeInMillis = lastForegroundTime
-                val hour = eventCal.get(Calendar.HOUR_OF_DAY)
-
-                val bucketIndex = when {
-                    hour in 6..11  -> 0 // Morning
-                    hour in 12..16 -> 1 // Afternoon
-                    hour in 17..20 -> 2 // Evening
-                    else           -> 3 // Night (21–5)
-                }
-                bucketMs[bucketIndex] += duration
+            if (currentForegroundApp != null && lastEventTime > 0) {
+                val duration = ts - lastEventTime
+                if (duration > 0) addToBucket(lastEventTime, duration, bucketMs)
             }
-            lastForegroundTime = -1L
+            currentForegroundApp = event.packageName
+            lastEventTime = ts
+        } else if (type == android.app.usage.UsageEvents.Event.MOVE_TO_BACKGROUND) {
+            if (currentForegroundApp == event.packageName && lastEventTime > 0) {
+                val duration = ts - lastEventTime
+                if (duration > 0) addToBucket(lastEventTime, duration, bucketMs)
+                currentForegroundApp = null
+                lastEventTime = -1L
+            }
         }
+    }
+
+    // Add time for the app currently in the foreground (if any)
+    if (currentForegroundApp != null && lastEventTime > 0 && lastEventTime < now) {
+        addToBucket(lastEventTime, now - lastEventTime, bucketMs)
     }
 
     return bucketRanges.mapIndexed { i, (label, _, _) ->
         TimeOfDayUsage(label, bucketMs[i])
     }.filter { it.timeMs > 0 }
+}
+
+private fun addToBucket(timestamp: Long, duration: Long, bucketMs: LongArray) {
+    val eventCal = Calendar.getInstance()
+    eventCal.timeInMillis = timestamp
+    val hour = eventCal.get(Calendar.HOUR_OF_DAY)
+
+    val bucketIndex = when {
+        hour in 6..11  -> 0 // Morning
+        hour in 12..16 -> 1 // Afternoon
+        hour in 17..20 -> 2 // Evening
+        else           -> 3 // Night (21–5)
+    }
+    bucketMs[bucketIndex] += duration
 }
 
 enum class Screen {
@@ -563,17 +583,11 @@ fun DashboardScreen(
 
             // ── Screen Time Section ──
             Text(
-                text = "Top Apps Today",
+                text = "App wise",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = OnSurface,
                 modifier = Modifier.padding(horizontal = 8.dp)
-            )
-            Text(
-                text = "Screen time by app",
-                style = MaterialTheme.typography.bodySmall,
-                color = SubText,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -609,7 +623,7 @@ fun DashboardScreen(
                 ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(230.dp)
+                        .height(310.dp)
                         .padding(horizontal = 8.dp),
                     shape = RoundedCornerShape(16.dp),
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
@@ -624,6 +638,7 @@ fun DashboardScreen(
                             data = usageStats.map { it.timeMs.toFloat() },
                             barColors = appColors,
                             labels = usageStats.map { it.label },
+                            icons = usageStats.map { it.icon },
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(16.dp)
@@ -635,17 +650,11 @@ fun DashboardScreen(
 
                 // Pie chart — Time of day (distinct info from bar chart)
                 Text(
-                    text = "When You Use Your Phone",
+                    text = "Screen Time Distribution:",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = OnSurface,
                     modifier = Modifier.padding(horizontal = 8.dp)
-                )
-                Text(
-                    text = "Screen time distribution by time of day",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = SubText,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -817,44 +826,116 @@ fun SettingsScreen(
     }
 }
 
-// ── Bar Chart with app name labels and time captions ──────────────────────────
+// ── Helper: convert any Drawable to a Bitmap ──────────────────────────────────
+
+fun drawableToBitmap(drawable: android.graphics.drawable.Drawable): Bitmap {
+    if (drawable is android.graphics.drawable.BitmapDrawable && drawable.bitmap != null) {
+        return drawable.bitmap
+    }
+    val w = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 64
+    val h = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 64
+    val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+    val cvs = android.graphics.Canvas(bmp)
+    drawable.setBounds(0, 0, cvs.width, cvs.height)
+    drawable.draw(cvs)
+    return bmp
+}
+
+// ── Bar Chart: Y-axis hour scale, gridlines, app icon + name + time ───────────
 
 @Composable
-fun BarChart(data: List<Float>, barColors: List<Color>, labels: List<String> = emptyList(), modifier: Modifier = Modifier) {
+fun BarChart(
+    data: List<Float>,
+    barColors: List<Color>,
+    labels: List<String> = emptyList(),
+    icons: List<android.graphics.drawable.Drawable?> = emptyList(),
+    modifier: Modifier = Modifier
+) {
     if (data.isEmpty() || (data.maxOrNull() ?: 0f) == 0f) return
     val maxData = data.maxOrNull() ?: 1f
+    // Compute the next whole-hour ceiling so Y-axis ticks are clean
+    val maxMs = maxData.toLong()
+    val maxHours = ((maxMs / 3_600_000L) + 1L).coerceAtLeast(1L).toInt()
+    val capturedColors = barColors.map { it }
 
     Column(modifier = modifier) {
-        // Draw bars using Canvas, leaving bottom space for labels
-        val capturedColors = barColors.map { it }
+        // Canvas draws Y-axis labels, horizontal gridlines, and the bars
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
+            val yAxisWidthPx = 36.dp.toPx()
+            val chartWidth = size.width - yAxisWidthPx
             val count = data.size
-            val totalGap = size.width * 0.15f
-            val barWidth = (size.width - totalGap) / count
+            val totalGap = chartWidth * 0.15f
+            val barWidth = (chartWidth - totalGap) / count
             val gap = totalGap / (count + 1)
 
-            for ((index, value) in data.withIndex()) {
-                val barHeight = (value / maxData) * size.height * 0.90f
-                val x = gap + index * (barWidth + gap) + barWidth / 2f
+            val axisPaint = android.graphics.Paint().apply {
+                color = android.graphics.Color.argb(160, 150, 165, 185)
+                textSize = 28f
+                textAlign = android.graphics.Paint.Align.RIGHT
+                isAntiAlias = true
+            }
+
+            val timePaint = android.graphics.Paint().apply {
+                color = android.graphics.Color.WHITE
+                textSize = 26f
+                textAlign = android.graphics.Paint.Align.CENTER
+                isAntiAlias = true
+                typeface = android.graphics.Typeface.DEFAULT_BOLD
+            }
+
+            // Draw gridlines + Y-axis hour labels (bottom=0h, top=maxHours)
+            for (hour in 0..maxHours) {
+                val y = size.height - (hour.toFloat() / maxHours.toFloat()) * size.height
                 drawLine(
-                    color = capturedColors[index % capturedColors.size],
-                    start = androidx.compose.ui.geometry.Offset(x, size.height),
-                    end = androidx.compose.ui.geometry.Offset(x, size.height - barHeight),
-                    strokeWidth = barWidth * 0.7f,
-                    cap = StrokeCap.Round
+                    color = Color.White.copy(alpha = 0.08f),
+                    start = Offset(yAxisWidthPx, y),
+                    end = Offset(size.width, y),
+                    strokeWidth = 1f
                 )
+                // Clamp text baseline inside canvas: labels near the top/bottom get nudged inward
+                val textY = (y + axisPaint.textSize / 3f)
+                    .coerceIn(axisPaint.textSize, size.height - 2f)
+                drawContext.canvas.nativeCanvas.drawText(
+                    "${hour}h",
+                    yAxisWidthPx - 4f,
+                    textY,
+                    axisPaint
+                )
+            }
+
+            // Draw bars scaled against maxHours
+            for ((index, value) in data.withIndex()) {
+                val barHeight = (value / (maxHours.toFloat() * 3_600_000f)) * size.height
+                val x = yAxisWidthPx + gap + index * (barWidth + gap) + barWidth / 2f
+                if (barHeight > 0f) {
+                    val topY = (size.height - barHeight).coerceAtLeast(0f)
+                    drawLine(
+                        color = capturedColors[index % capturedColors.size],
+                        start = Offset(x, size.height),
+                        end = Offset(x, topY),
+                        strokeWidth = barWidth * 0.7f,
+                        cap = StrokeCap.Butt
+                    )
+                    
+                    // Draw time string above the bar
+                    val timeStr = formatMs(value.toLong())
+                    val textY = (topY - 8f).coerceAtLeast(timePaint.textSize)
+                    drawContext.canvas.nativeCanvas.drawText(timeStr, x, textY, timePaint)
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // App name + time labels below bars
+        // App icon + name row — starts after Y-axis width to align with bars
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 36.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             data.forEachIndexed { index, value ->
@@ -862,32 +943,36 @@ fun BarChart(data: List<Float>, barColors: List<Color>, labels: List<String> = e
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(
-                                barColors[index % barColors.size],
-                                shape = RoundedCornerShape(2.dp)
-                            )
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
+                    val drawable = icons.getOrNull(index)
+                    if (drawable != null) {
+                        val labelKey = labels.getOrElse(index) { index.toString() }
+                        val bmp = remember(labelKey) { drawableToBitmap(drawable) }
+                        Image(
+                            bitmap = bmp.asImageBitmap(),
+                            contentDescription = labels.getOrElse(index) { "" },
+                            modifier = Modifier.size(28.dp)
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .background(
+                                    barColors[index % barColors.size],
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
                     if (labels.isNotEmpty()) {
                         Text(
                             text = labels.getOrElse(index) { "" },
                             style = MaterialTheme.typography.labelSmall,
                             color = SubText,
-                            maxLines = 1,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            maxLines = 2,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    Text(
-                        text = formatMs(value.toLong()),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = OnSurface,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                    )
                 }
             }
         }
@@ -915,7 +1000,7 @@ fun PieChart(data: List<Float>, labels: List<String>, colors: List<Color>, modif
             val diameter = minOf(size.width, size.height)
             val strokeWidth = diameter * 0.20f
             val radius = (diameter - strokeWidth) / 2f
-            val topLeft = androidx.compose.ui.geometry.Offset(
+            val topLeft = Offset(
                 (size.width - radius * 2f) / 2f,
                 (size.height - radius * 2f) / 2f
             )
