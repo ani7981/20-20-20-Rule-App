@@ -247,7 +247,8 @@ class MainActivity : AppCompatActivity() {
         setContent {
             AttentionTrackerTheme {
                 var currentScreen by remember { mutableStateOf<Screen>(Screen.ONBOARDING) }
-                
+                var showUsageDialog by remember { mutableStateOf(false) }
+
                 LaunchedEffect(Unit) {
                     val name = prefManager.userName.first()
                     if (name.isNotBlank()) {
@@ -255,6 +256,57 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         currentScreen = Screen.ONBOARDING
                     }
+                    
+                    if (!hasUsageStatsPermission(this@MainActivity)) {
+                        showUsageDialog = true
+                    }
+                }
+
+                if (showUsageDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showUsageDialog = false },
+                        title = { Text("Usage Access Required") },
+                        text = {
+                            Text(
+                                "To display your screen time graphs, the app needs Usage Access.\n\n" +
+                                "If the setting is greyed out on your phone:\n" +
+                                "1. Click 'App Info' below.\n" +
+                                "2. Tap the 3 vertical dots at the top right.\n" +
+                                "3. Tap 'Allow restricted settings'.\n" +
+                                "4. Come back and click 'Grant Usage Access'."
+                            )
+                        },
+                        confirmButton = {
+                            Column(horizontalAlignment = Alignment.End) {
+                                TextButton(onClick = {
+                                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.parse("package:$packageName")
+                                    }
+                                    startActivity(intent)
+                                }) {
+                                    Text("App Info (Unlock)", fontWeight = FontWeight.Bold)
+                                }
+                                TextButton(onClick = {
+                                    showUsageDialog = false
+                                    try {
+                                        val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
+                                            data = Uri.parse("package:$packageName")
+                                        }
+                                        startActivity(intent)
+                                    } catch (e: Exception) {
+                                        startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+                                    }
+                                }) {
+                                    Text("Grant Usage Access", fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showUsageDialog = false }) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
                 }
 
                 when (currentScreen) {
@@ -603,19 +655,8 @@ fun DashboardScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            if (!hasUsagePerm) {
-                Button(
-                    onClick = {
-                        context.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentCyan)
-                ) {
-                    Text("Enable Usage Stats Permission for Graphs", color = DarkNavy, fontWeight = FontWeight.Bold)
-                }
-            } else {
+            // Assuming permission requested on launch, always render charts section.
+            // If permission is denied, charts will gracefully display 'No data available'.
                 val appColors = listOf(
                     AccentCyan,
                     Color(0xFF81C784),
@@ -694,7 +735,6 @@ fun DashboardScreen(
                         )
                     }
                 }
-            }
 
             Spacer(modifier = Modifier.height(32.dp))
         }
