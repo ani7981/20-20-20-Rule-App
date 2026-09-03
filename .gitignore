@@ -1,0 +1,58 @@
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated and build files
+bin/
+gen/
+out/
+build/
+app/build/
+**/build/
+
+# Gradle files and caches
+.gradle/
+
+# Local configuration file (SDK paths, local overrides)
+local.properties
+
+# Proguard
+proguard/
+
+# Log files
+*.log
+
+# Android Studio navigation and capture files
+.navigation/
+captures/
+
+# IntelliJ / Android Studio internal caches and configs
+*.iml
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/caches/
+.idea/assetWizardSettings.xml
+
+# Keystore / signing files (security risk if committed)
+*.jks
+*.keystore
+
+# External native builds
+.externalNativeBuild
+.cxx/
+
+# OS-specific temporary files
+.DS_Store
+Thumbs.db
+
+# Memory heap dumps
+*.hprof
