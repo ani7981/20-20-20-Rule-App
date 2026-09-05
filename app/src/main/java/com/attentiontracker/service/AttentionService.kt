@@ -4,6 +4,8 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
@@ -18,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.attentiontracker.MainActivity
+import com.attentiontracker.R
 import com.attentiontracker.camera.FaceAnalyzer
 import com.attentiontracker.overlay.BreakOverlayManager
 import com.attentiontracker.util.PreferenceManager
@@ -97,8 +100,8 @@ class AttentionService : LifecycleService() {
      * then re-anchors the foreground notification via [startForeground] so it reappears
      * even if the user swiped it away on Android 13+.
      */
-    private val batteryReceiver = object : android.content.BroadcastReceiver() {
-        override fun onReceive(context: android.content.Context, intent: Intent) {
+    private val batteryReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
             lastBatteryRefreshMs = 0L   // force full cache refresh on next buildNotification()
             startForeground(NOTIFICATION_ID, buildNotification(currentStatusText))
         }
@@ -108,8 +111,8 @@ class AttentionService : LifecycleService() {
      * Fires when the user swipes away the camera notification.
      * Immediately re-posts [NOTIFICATION_ID_CAMERA] so it stays visible.
      */
-    private val cameraNotifDeleteReceiver = object : android.content.BroadcastReceiver() {
-        override fun onReceive(context: android.content.Context, intent: Intent) {
+    private val cameraNotifDeleteReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == ACTION_REPOST_CAMERA) showCameraNotification()
         }
     }
@@ -129,16 +132,10 @@ class AttentionService : LifecycleService() {
         lifecycleScope.launch {
             thresholdMs = prefManager.thresholdSeconds.first() * 1_000L
         }
-
-        // Live battery receiver – fires on every real battery-% change (no polling needed)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED), RECEIVER_EXPORTED)
-            registerReceiver(cameraNotifDeleteReceiver, IntentFilter(ACTION_REPOST_CAMERA), RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-            registerReceiver(cameraNotifDeleteReceiver, IntentFilter(ACTION_REPOST_CAMERA))
-        }
     }
+
+    /** Guards against registering receivers twice on repeated [onStartCommand] calls. */
+    private var receiversRegistered = false
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
@@ -155,7 +152,24 @@ class AttentionService : LifecycleService() {
         // Record where the battery is when this tracking session begins
         sessionStartBatteryPct = getBatteryLevelPct()
         sessionStartTimeMs = System.currentTimeMillis()
+        // startForeground FIRST — receivers registered below may call startForeground() themselves
         startForeground(NOTIFICATION_ID, buildNotification("Tracking attention..."))
+
+        // Register live receivers AFTER startForeground() so batteryReceiver can safely call
+        // startForeground() in its onReceive() without hitting ForegroundServiceDidNotStartInTimeException
+        if (!receiversRegistered) {
+            receiversRegistered = true
+            // ACTION_BATTERY_CHANGED is a system broadcast; RECEIVER_NOT_EXPORTED is semantically correct
+            // (no external app should be allowed to spoof a battery-changed event to us)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED), RECEIVER_NOT_EXPORTED)
+                registerReceiver(cameraNotifDeleteReceiver, IntentFilter(ACTION_REPOST_CAMERA), RECEIVER_NOT_EXPORTED)
+            } else {
+                registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                registerReceiver(cameraNotifDeleteReceiver, IntentFilter(ACTION_REPOST_CAMERA))
+            }
+        }
+
         startCamera()
         return START_STICKY
     }
@@ -434,7 +448,7 @@ class AttentionService : LifecycleService() {
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("📷 Camera in use")
             .setContentText("20-20-20 Rule is using the front camera to detect screen attention")
-            .setSmallIcon(android.R.drawable.ic_menu_camera)
+            .setSmallIcon(R.drawable.ic_camera)
             .setContentIntent(tapIntent)
             .setDeleteIntent(deletePi)   // re-post on swipe
             .setOngoing(false)           // OS won't block the swipe; deleteIntent handles persistence
