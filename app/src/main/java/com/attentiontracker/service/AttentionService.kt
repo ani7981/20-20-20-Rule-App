@@ -49,17 +49,20 @@ class AttentionService : LifecycleService() {
         private const val TAG = "AttentionService"
         private const val CHANNEL_ID = "AttentionServiceChannel"
         private const val NOTIFICATION_ID = 1
+        private const val NOTIFICATION_ID_CAMERA = 2   // separate "camera in use" notification
 
         // Intent actions
-        const val ACTION_UPDATE_THRESHOLD = "com.attentiontracker.UPDATE_THRESHOLD"
-        const val ACTION_STATUS_UPDATE    = "com.attentiontracker.STATUS_UPDATE"
+        const val ACTION_UPDATE_THRESHOLD      = "com.attentiontracker.UPDATE_THRESHOLD"
+        const val ACTION_STATUS_UPDATE         = "com.attentiontracker.STATUS_UPDATE"
+        // Internal action fired by the camera notification's deleteIntent so we can re-post it immediately
+        private const val ACTION_REPOST_CAMERA = "com.attentiontracker.REPOST_CAMERA_NOTIF"
 
         // Intent extras
         const val EXTRA_THRESHOLD      = "threshold_seconds"
         const val EXTRA_IS_LOOKING     = "is_looking"
         const val EXTRA_SECONDS_LOOKING = "seconds_looking"
 
-        // Battery polling interval – we do not need per-second refreshes for these slow-changing values
+        // Battery polling interval – hard fallback; live receiver drives normal updates
         private const val BATTERY_REFRESH_INTERVAL_MS = 30_000L
     }
 
@@ -83,8 +86,34 @@ class AttentionService : LifecycleService() {
     private var lastBatteryRefreshMs: Long = 0L
     /** Cached one-line summary string shown in the collapsed notification. */
     private var cachedBatterySummary: String = ""
+    /** Last status text passed to [updateNotification]; replayed by the battery receiver. */
+    private var currentStatusText: String = "Tracking attention..."
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // ── Live broadcast receivers ───────────────────────────────────────────────
+
+    /**
+     * Fires whenever the battery level actually changes (Android posts this automatically).
+     * Resets the cache timer so [refreshBatteryCacheIfStale] re-reads all values immediately,
+     * then re-anchors the foreground notification via [startForeground] so it reappears
+     * even if the user swiped it away on Android 13+.
+     */
+    private val batteryReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context, intent: Intent) {
+            lastBatteryRefreshMs = 0L   // force full cache refresh on next buildNotification()
+            startForeground(NOTIFICATION_ID, buildNotification(currentStatusText))
+        }
+    }
+
+    /**
+     * Fires when the user swipes away the camera notification.
+     * Immediately re-posts [NOTIFICATION_ID_CAMERA] so it stays visible.
+     */
+    private val cameraNotifDeleteReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context, intent: Intent) {
+            if (intent.action == ACTION_REPOST_CAMERA) showCameraNotification()
+        }
+    }
+
 
     override fun onCreate() {
         super.onCreate()
@@ -99,6 +128,15 @@ class AttentionService : LifecycleService() {
         // Load the persisted threshold once at startup
         lifecycleScope.launch {
             thresholdMs = prefManager.thresholdSeconds.first() * 1_000L
+        }
+
+        // Live battery receiver – fires on every real battery-% change (no polling needed)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED), RECEIVER_EXPORTED)
+            registerReceiver(cameraNotifDeleteReceiver, IntentFilter(ACTION_REPOST_CAMERA), RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            registerReceiver(cameraNotifDeleteReceiver, IntentFilter(ACTION_REPOST_CAMERA))
         }
     }
 
@@ -127,6 +165,10 @@ class AttentionService : LifecycleService() {
         timerJob?.cancel()
         cameraExecutor.shutdown()
         overlayManager.hide()
+        // Clean up receivers and secondary notification
+        try { unregisterReceiver(batteryReceiver) } catch (_: Exception) {}
+        try { unregisterReceiver(cameraNotifDeleteReceiver) } catch (_: Exception) {}
+        hideCameraNotification()
     }
 
     // ── Camera setup ──────────────────────────────────────────────────────────
@@ -149,11 +191,14 @@ class AttentionService : LifecycleService() {
                     analysis
                 )
                 Log.d(TAG, "Camera bound successfully")
+                showCameraNotification()   // let the user know camera is actively in use
             } catch (e: Exception) {
                 Log.e(TAG, "Camera binding failed: ${e.message}", e)
+                hideCameraNotification()
             }
         }, ContextCompat.getMainExecutor(this))
     }
+
 
     // ── Face result handler ───────────────────────────────────────────────────
 
@@ -356,9 +401,52 @@ class AttentionService : LifecycleService() {
             .build()
     }
 
+    /**
+     * Updates the foreground notification with new status text.
+     * Uses [startForeground] (not just [NotificationManager.notify]) so the notification
+     * is re-anchored to the foreground service — this makes it reappear immediately even
+     * if the user swiped it away on Android 13+.
+     */
     private fun updateNotification(text: String) {
-        val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        nm.notify(NOTIFICATION_ID, buildNotification(text))
+        currentStatusText = text
+        startForeground(NOTIFICATION_ID, buildNotification(text))
+    }
+
+    // ── Camera in-use notification ────────────────────────────────────────────
+
+    /**
+     * Posts a secondary persistent notification (ID [NOTIFICATION_ID_CAMERA]) indicating
+     * the front camera is actively in use. Uses a [deleteIntent] so if the user swipes it
+     * the notification immediately re-posts itself via [cameraNotifDeleteReceiver].
+     */
+    private fun showCameraNotification() {
+        val tapIntent = PendingIntent.getActivity(
+            this, 0,
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        // When swiped, fire ACTION_REPOST_CAMERA so the receiver re-posts it
+        val deletePi = PendingIntent.getBroadcast(
+            this, 0,
+            Intent(ACTION_REPOST_CAMERA).apply { `package` = packageName },
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("📷 Camera in use")
+            .setContentText("20-20-20 Rule is using the front camera to detect screen attention")
+            .setSmallIcon(android.R.drawable.ic_menu_camera)
+            .setContentIntent(tapIntent)
+            .setDeleteIntent(deletePi)   // re-post on swipe
+            .setOngoing(false)           // OS won't block the swipe; deleteIntent handles persistence
+            .setSilent(true)
+            .build()
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
+            .notify(NOTIFICATION_ID_CAMERA, notification)
+    }
+
+    private fun hideCameraNotification() {
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
+            .cancel(NOTIFICATION_ID_CAMERA)
     }
 
     private fun createNotificationChannel() {
