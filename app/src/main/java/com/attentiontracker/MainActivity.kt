@@ -56,6 +56,7 @@ import com.attentiontracker.util.PreferenceManager
 import com.attentiontracker.ui.theme.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 import java.util.Calendar
 
 data class AppUsage(val packageName: String, val timeMs: Long, val label: String, val icon: android.graphics.drawable.Drawable? = null)
