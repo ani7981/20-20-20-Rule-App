@@ -181,7 +181,7 @@ private fun addToBucket(timestamp: Long, duration: Long, bucketMs: LongArray) {
 }
 
 enum class Screen {
-    ONBOARDING, DASHBOARD, SETTINGS
+    LOADING, ONBOARDING, DASHBOARD, SETTINGS
 }
 
 class MainActivity : AppCompatActivity() {
@@ -231,6 +231,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         prefManager = PreferenceManager(this)
 
+        // Check if our service is already running so UI matches reality
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+        @Suppress("DEPRECATION")
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (AttentionService::class.java.name == service.service.className) {
+                isTrackingState.value = true
+                statusTextState.value = "Tracking active"
+                break
+            }
+        }
+
         lifecycleScope.launch {
             thresholdSecondsState.value = prefManager.thresholdSeconds.first()
             userNameState.value = prefManager.userName.first()
@@ -246,7 +257,7 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             AttentionTrackerTheme {
-                var currentScreen by remember { mutableStateOf<Screen>(Screen.ONBOARDING) }
+                var currentScreen by remember { mutableStateOf<Screen>(Screen.LOADING) }
                 var showUsageDialog by remember { mutableStateOf(false) }
 
                 LaunchedEffect(Unit) {
@@ -310,6 +321,11 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 when (currentScreen) {
+                    Screen.LOADING -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
                     Screen.ONBOARDING -> {
                         OnboardingScreen(onContinue = { name ->
                             lifecycleScope.launch {

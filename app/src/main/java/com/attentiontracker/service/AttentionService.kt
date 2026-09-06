@@ -413,7 +413,6 @@ class AttentionService : LifecycleService() {
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentIntent(pi)
             .setOngoing(true)
-            .setGroup("battery_status") // Prevents OS from grouping with camera notification
             .setSilent(true)
             .build()
     }
@@ -455,7 +454,6 @@ class AttentionService : LifecycleService() {
             .setContentIntent(tapIntent)
             .setDeleteIntent(deletePi)   // re-post on swipe (backup for Android 13+)
             .setOngoing(true)            // Prevent normal swipe dismissal on most OS versions
-            .setGroup("camera_status")   // Explicitly separate from battery notification
             .setSilent(true)
             .build()
         (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
