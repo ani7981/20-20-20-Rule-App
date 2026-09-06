@@ -507,14 +507,21 @@ fun DashboardScreen(
     var usageStats by remember { mutableStateOf<List<AppUsage>>(emptyList()) }
     var timeOfDayStats by remember { mutableStateOf<List<TimeOfDayUsage>>(emptyList()) }
 
+    val coroutineScope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 hasUsagePerm = hasUsageStatsPermission(context)
                 if (hasUsagePerm) {
-                    usageStats = getTodayUsageStats(context)
-                    timeOfDayStats = getTimeOfDayUsage(context)
+                    coroutineScope.launch(Dispatchers.IO) {
+                        val newUsage = getTodayUsageStats(context)
+                        val newTimeOfDay = getTimeOfDayUsage(context)
+                        launch(Dispatchers.Main) {
+                            usageStats = newUsage
+                            timeOfDayStats = newTimeOfDay
+                        }
+                    }
                 }
             }
         }
@@ -925,6 +932,25 @@ fun BarChart(
     val maxHours = ((maxMs / 3_600_000L) + 1L).coerceAtLeast(1L).toInt()
     val capturedColors = barColors.map { it }
 
+    val axisPaint = remember {
+        android.graphics.Paint().apply {
+            color = android.graphics.Color.argb(160, 150, 165, 185)
+            textSize = 28f
+            textAlign = android.graphics.Paint.Align.RIGHT
+            isAntiAlias = true
+        }
+    }
+
+    val timePaint = remember {
+        android.graphics.Paint().apply {
+            color = android.graphics.Color.WHITE
+            textSize = 26f
+            textAlign = android.graphics.Paint.Align.CENTER
+            isAntiAlias = true
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+        }
+    }
+
     Column(modifier = modifier) {
         // Canvas draws Y-axis labels, horizontal gridlines, and the bars
         Canvas(
@@ -938,21 +964,6 @@ fun BarChart(
             val totalGap = chartWidth * 0.15f
             val barWidth = (chartWidth - totalGap) / count
             val gap = totalGap / (count + 1)
-
-            val axisPaint = android.graphics.Paint().apply {
-                color = android.graphics.Color.argb(160, 150, 165, 185)
-                textSize = 28f
-                textAlign = android.graphics.Paint.Align.RIGHT
-                isAntiAlias = true
-            }
-
-            val timePaint = android.graphics.Paint().apply {
-                color = android.graphics.Color.WHITE
-                textSize = 26f
-                textAlign = android.graphics.Paint.Align.CENTER
-                isAntiAlias = true
-                typeface = android.graphics.Typeface.DEFAULT_BOLD
-            }
 
             // Draw gridlines + Y-axis hour labels (bottom=0h, top=maxHours)
             for (hour in 0..maxHours) {

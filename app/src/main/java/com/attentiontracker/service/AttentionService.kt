@@ -103,7 +103,8 @@ class AttentionService : LifecycleService() {
     private val batteryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             lastBatteryRefreshMs = 0L   // force full cache refresh on next buildNotification()
-            startForeground(NOTIFICATION_ID, buildNotification(currentStatusText))
+            val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            nm.notify(NOTIFICATION_ID, buildNotification(currentStatusText, batteryIntent = intent))
         }
     }
 
@@ -150,7 +151,10 @@ class AttentionService : LifecycleService() {
 
         createNotificationChannel()
         // Record where the battery is when this tracking session begins
-        sessionStartBatteryPct = getBatteryLevelPct()
+        val batteryIntent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val level = batteryIntent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+        val scale = batteryIntent?.getIntExtra(BatteryManager.EXTRA_SCALE, 100) ?: 100
+        sessionStartBatteryPct = if (level >= 0) (level / scale.toFloat()) * 100f else -1f
         sessionStartTimeMs = System.currentTimeMillis()
         // startForeground FIRST — receivers registered below may call startForeground() themselves
         startForeground(NOTIFICATION_ID, buildNotification("Tracking attention..."))
@@ -304,32 +308,6 @@ class AttentionService : LifecycleService() {
 
     // ── Notification helpers ──────────────────────────────────────────────────
 
-    /**
-     * Queries current battery level as a percentage using the sticky battery broadcast.
-     * This is a direct cached intent lookup – no event listener, no thread overhead.
-     */
-    private fun getBatteryLevelPct(): Float {
-        val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-        val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: return -1f
-        val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
-        return (level / scale.toFloat()) * 100f
-    }
-
-    /**
-     * Returns battery/device temperature in °C.
-     * BatteryManager reports in tenths of a degree (e.g. 345 = 34.5°C).
-     */
-    private fun getTemperatureCelsius(): Float {
-        val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-        val tenths = intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) ?: 0
-        return tenths / 10.0f
-    }
-
-    /**
-     * Returns instantaneous current draw in mA from the hardware fuel-gauge.
-     * Returns 0 if the device doesn't expose this property.
-     * Value is signed: negative = discharging. We return the absolute value.
-     */
     private fun getInstantCurrentMa(): Int {
         val bm = getSystemService(BATTERY_SERVICE) as BatteryManager
         val microAmps = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
@@ -338,21 +316,28 @@ class AttentionService : LifecycleService() {
 
     /**
      * Refreshes [cachedBatterySummary] at most once every [BATTERY_REFRESH_INTERVAL_MS].
-     * Called from [buildNotification] so the heavy sticky-intent query only runs
-     * every 30 s, not on every camera frame or timer tick.
+     * Can be passed a live [batteryIntent] to avoid querying the system via `registerReceiver(null, ...)`.
      */
-    private fun refreshBatteryCacheIfStale() {
+    private fun refreshBatteryCacheIfStale(batteryIntent: Intent? = null) {
         val now = System.currentTimeMillis()
-        if (now - lastBatteryRefreshMs < BATTERY_REFRESH_INTERVAL_MS && cachedBatterySummary.isNotEmpty()) return
+        if (batteryIntent == null && now - lastBatteryRefreshMs < BATTERY_REFRESH_INTERVAL_MS && cachedBatterySummary.isNotEmpty()) return
 
         lastBatteryRefreshMs = now
 
-        val currentPct   = getBatteryLevelPct()
-        val tempC        = getTemperatureCelsius()
-        val mA           = getInstantCurrentMa()
+        // Reuse provided intent from receiver, or fetch it once if not provided
+        val intent = batteryIntent ?: registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+
+        val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+        val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, 100) ?: 100
+        val currentPct = if (level >= 0) (level / scale.toFloat()) * 100f else -1f
+
+        val tenths = intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) ?: 0
+        val tempC = tenths / 10.0f
+        
+        val mA = getInstantCurrentMa()
 
         // Session drain = how many % have been used since tracking started
-        val drainPct     = if (sessionStartBatteryPct >= 0f) (sessionStartBatteryPct - currentPct).coerceAtLeast(0f) else 0f
+        val drainPct = if (sessionStartBatteryPct >= 0f) (sessionStartBatteryPct - currentPct).coerceAtLeast(0f) else 0f
 
         // Drain rate = % per hour based on elapsed session time
         val elapsedHours = (now - sessionStartTimeMs) / 3_600_000.0
@@ -381,8 +366,8 @@ class AttentionService : LifecycleService() {
     private var batteryDrainPct: Float     = 0f
     private var batteryRatePctPerHr: Double = 0.0
 
-    private fun buildNotification(statusText: String): Notification {
-        refreshBatteryCacheIfStale()
+    private fun buildNotification(statusText: String, batteryIntent: Intent? = null): Notification {
+        refreshBatteryCacheIfStale(batteryIntent)
 
         val pi = PendingIntent.getActivity(
             this, 0,
@@ -418,13 +403,11 @@ class AttentionService : LifecycleService() {
 
     /**
      * Updates the foreground notification with new status text.
-     * Uses [startForeground] (not just [NotificationManager.notify]) so the notification
-     * is re-anchored to the foreground service — this makes it reappear immediately even
-     * if the user swiped it away on Android 13+.
      */
     private fun updateNotification(text: String) {
         currentStatusText = text
-        startForeground(NOTIFICATION_ID, buildNotification(text))
+        val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        nm.notify(NOTIFICATION_ID, buildNotification(text))
     }
 
     // ── Camera in-use notification ────────────────────────────────────────────

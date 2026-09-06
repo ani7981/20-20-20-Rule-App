@@ -37,7 +37,7 @@ class PreferenceManager(private val context: Context) {
         .map { prefs -> prefs[USER_NAME_KEY] ?: "" }
 
     val completedBreaks: Flow<Int> = context.dataStore.data.map { prefs ->
-        val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+        val today = java.time.LocalDate.now().toString()
         if (prefs[LAST_BREAK_DATE_KEY] == today) prefs[COMPLETED_BREAKS_KEY] ?: 0 else 0
     }
 
@@ -56,7 +56,7 @@ class PreferenceManager(private val context: Context) {
 
     suspend fun incrementCompletedBreaks() {
         context.dataStore.edit { prefs ->
-            val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+            val today = java.time.LocalDate.now().toString()
             val lastDate = prefs[LAST_BREAK_DATE_KEY]
             val currentBreaks = if (lastDate == today) prefs[COMPLETED_BREAKS_KEY] ?: 0 else 0
             
