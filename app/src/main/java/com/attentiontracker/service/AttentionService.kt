@@ -51,6 +51,7 @@ class AttentionService : LifecycleService() {
     companion object {
         private const val TAG = "AttentionService"
         private const val CHANNEL_ID = "AttentionServiceChannel"
+        private const val CHANNEL_ID_CAMERA = "AttentionServiceCameraChannel"
         private const val NOTIFICATION_ID = 1
         private const val NOTIFICATION_ID_CAMERA = 2   // separate "camera in use" notification
 
@@ -412,6 +413,7 @@ class AttentionService : LifecycleService() {
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentIntent(pi)
             .setOngoing(true)
+            .setGroup("battery_status") // Prevents OS from grouping with camera notification
             .setSilent(true)
             .build()
     }
@@ -446,13 +448,14 @@ class AttentionService : LifecycleService() {
             Intent(ACTION_REPOST_CAMERA).apply { `package` = packageName },
             PendingIntent.FLAG_IMMUTABLE
         )
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID_CAMERA)
             .setContentTitle("📷 Camera in use")
             .setContentText("20-20-20 Rule is using the front camera to detect screen attention")
             .setSmallIcon(R.drawable.ic_camera)
             .setContentIntent(tapIntent)
-            .setDeleteIntent(deletePi)   // re-post on swipe
-            .setOngoing(false)           // OS won't block the swipe; deleteIntent handles persistence
+            .setDeleteIntent(deletePi)   // re-post on swipe (backup for Android 13+)
+            .setOngoing(true)            // Prevent normal swipe dismissal on most OS versions
+            .setGroup("camera_status")   // Explicitly separate from battery notification
             .setSilent(true)
             .build()
         (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
@@ -466,7 +469,9 @@ class AttentionService : LifecycleService() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
+            val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            
+            val batteryChannel = NotificationChannel(
                 CHANNEL_ID,
                 "Attention Tracker",
                 NotificationManager.IMPORTANCE_LOW
@@ -474,8 +479,18 @@ class AttentionService : LifecycleService() {
                 description = "Persistent screen-time tracker notification"
                 setShowBadge(false)
             }
-            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
-                .createNotificationChannel(channel)
+            
+            val cameraChannel = NotificationChannel(
+                CHANNEL_ID_CAMERA,
+                "Camera Status",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Camera in-use indicator"
+                setShowBadge(false)
+            }
+
+            nm.createNotificationChannel(batteryChannel)
+            nm.createNotificationChannel(cameraChannel)
         }
     }
 }
