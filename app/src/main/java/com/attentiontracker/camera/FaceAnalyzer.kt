@@ -37,8 +37,18 @@ class FaceAnalyzer(private val onResult: (isFacing: Boolean) -> Unit) : ImageAna
             .build()
     )
 
+    private var lastAnalysisTime = 0L
+    private val analysisIntervalMs = 500L // Only run AI 2 times per second
+
     @ExperimentalGetImage
     override fun analyze(imageProxy: ImageProxy) {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastAnalysisTime < analysisIntervalMs) {
+            imageProxy.close() // Skip processing this frame entirely to save battery
+            return
+        }
+        lastAnalysisTime = currentTime
+
         val mediaImage = imageProxy.image ?: run {
             imageProxy.close()
             return

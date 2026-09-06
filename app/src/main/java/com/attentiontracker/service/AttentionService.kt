@@ -193,7 +193,8 @@ class AttentionService : LifecycleService() {
             try {
                 val provider = future.get()
                 val analysis = ImageAnalysis.Builder()
-                    .setTargetResolution(Size(640, 480))
+                    // Lowest resolution acceptable for ML Kit to dramatically reduce hardware battery drain
+                    .setTargetResolution(Size(320, 240))
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                     .also { it.setAnalyzer(cameraExecutor, FaceAnalyzer(::onFaceResult)) }
