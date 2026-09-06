@@ -23,6 +23,14 @@ val NeoSurfaceMid    = Color(0xFFEEEEEE)
 val NeoSurfaceHigh   = Color(0xFFE8E8E8)
 val NeoOutline       = Color(0xFF7C775F)
 
+// Legacy color aliases for backward compatibility
+val OnSurface        = NeoInk
+val SubText          = Color(0xFF7C775F)
+val DarkNavy         = NeoBlack
+val MidNavy          = NeoPaper
+val AccentCyan       = NeoCyan
+val SurfaceCard      = NeoCard
+
 // ─── Material3 Color Scheme ─────────────────────────────────────────────────
 val NeoColorScheme = lightColorScheme(
     // Background / Canvas — warm off-white paper to reduce digital fatigue

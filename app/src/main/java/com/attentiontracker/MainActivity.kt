@@ -23,6 +23,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,8 +39,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -1157,7 +1160,7 @@ fun DashboardScreen(
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.ExtraBold,
                         color = NeoInk,
-                        letterSpacing = androidx.compose.ui.unit.TextUnit(-0.5f, androidx.compose.ui.unit.TextUnitType.Sp)
+                        letterSpacing = (-0.5).sp
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Box(
@@ -1190,7 +1193,7 @@ fun DashboardScreen(
                             Modifier.border(
                                 width = 3.dp,
                                 color = NeoBlack,
-                                shape = androidx.compose.foundation.shape.RectangleShape
+                                shape = RectangleShape
                             )
                         )
                 ) {
@@ -1230,7 +1233,7 @@ fun DashboardScreen(
                     Box(
                         modifier = Modifier
                             .background(NeoYellow)
-                            .border(width = 3.dp, color = NeoBlack, shape = androidx.compose.foundation.shape.RectangleShape)
+                            .border(width = 3.dp, color = NeoBlack, shape = RectangleShape)
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
@@ -1238,7 +1241,7 @@ fun DashboardScreen(
                             fontWeight = FontWeight.ExtraBold,
                             color = NeoBlack,
                             style = MaterialTheme.typography.labelMedium,
-                            letterSpacing = androidx.compose.ui.unit.TextUnit(1.5f, androidx.compose.ui.unit.TextUnitType.Sp)
+                            letterSpacing = (1.5).sp
                         )
                     }
                     Text(
@@ -1274,7 +1277,7 @@ fun DashboardScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(NeoCard)
-                                .border(width = 3.dp, color = NeoBlack, shape = androidx.compose.foundation.shape.RectangleShape)
+                                .border(width = 3.dp, color = NeoBlack, shape = RectangleShape)
                                 .padding(horizontal = 12.dp, vertical = 10.dp)
                         ) {
                             Row(
@@ -1323,14 +1326,14 @@ fun DashboardScreen(
                                 Box(
                                     modifier = Modifier
                                         .background(NeoYellow)
-                                        .border(width = 2.dp, color = NeoBlack, shape = androidx.compose.foundation.shape.RectangleShape)
+                                        .border(width = 2.dp, color = NeoBlack, shape = RectangleShape)
                                         .padding(horizontal = 8.dp, vertical = 3.dp)
                                 ) {
                                     Text(
                                         text = formatMs(app.timeMs),
                                         fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = androidx.compose.ui.unit.sp(12f),
+                                        fontSize = 12.sp,
                                         color = NeoBlack
                                     )
                                 }
@@ -1343,7 +1346,7 @@ fun DashboardScreen(
                                     .fillMaxWidth()
                                     .height(14.dp)
                                     .background(NeoCard)
-                                    .border(width = 2.dp, color = NeoBlack, shape = androidx.compose.foundation.shape.RectangleShape)
+                                    .border(width = 2.dp, color = NeoBlack, shape = RectangleShape)
                                     .padding(2.dp)
                             ) {
                                 Box(
@@ -1469,14 +1472,14 @@ fun SettingsScreen(
                     Text(
                         text = "PREFERENCES & AI SENSORS",
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = androidx.compose.ui.unit.sp(24f),
+                        fontSize = 24.sp,
                         color = NeoInkC,
-                        letterSpacing = androidx.compose.ui.unit.TextUnit(-0.5f, androidx.compose.ui.unit.TextUnitType.Sp)
+                        letterSpacing = (-0.5).sp
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Tune detection intervals and battery modes.",
-                        fontSize = androidx.compose.ui.unit.sp(14f),
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF4B4731)
                     )
@@ -1492,7 +1495,7 @@ fun SettingsScreen(
                     Text(
                         text = "v2.0",
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = androidx.compose.ui.unit.sp(11f),
+                        fontSize = 11.sp,
                         color = NeoBlackC
                     )
                 }
@@ -1526,9 +1529,9 @@ fun SettingsScreen(
                         Text(
                             text = "EYE BREAK INTERVAL",
                             fontWeight = FontWeight.ExtraBold,
-                            fontSize = androidx.compose.ui.unit.sp(13f),
+                            fontSize = 13.sp,
                             color = NeoInkC,
-                            letterSpacing = androidx.compose.ui.unit.TextUnit(1f, androidx.compose.ui.unit.TextUnitType.Sp)
+                            letterSpacing = (1).sp
                         )
                     }
 
@@ -1566,7 +1569,7 @@ fun SettingsScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text("−", fontWeight = FontWeight.ExtraBold,
-                                        fontSize = androidx.compose.ui.unit.sp(28f), color = NeoBlackC)
+                                        fontSize = 28.sp, color = NeoBlackC)
                                 }
                             }
 
@@ -1576,15 +1579,15 @@ fun SettingsScreen(
                                     text = "$thresholdMinutes",
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = androidx.compose.ui.unit.sp(48f),
+                                    fontSize = 48.sp,
                                     color = NeoInkC
                                 )
                                 Text(
                                     text = "MIN",
                                     fontWeight = FontWeight.ExtraBold,
-                                    fontSize = androidx.compose.ui.unit.sp(14f),
+                                    fontSize = 14.sp,
                                     color = NeoInkC,
-                                    letterSpacing = androidx.compose.ui.unit.TextUnit(2f, androidx.compose.ui.unit.TextUnitType.Sp)
+                                    letterSpacing = (2).sp
                                 )
                             }
 
@@ -1610,7 +1613,7 @@ fun SettingsScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text("+", fontWeight = FontWeight.ExtraBold,
-                                        fontSize = androidx.compose.ui.unit.sp(28f), color = NeoBlackC)
+                                        fontSize = 28.sp, color = NeoBlackC)
                                 }
                             }
                         }
@@ -1648,9 +1651,9 @@ fun SettingsScreen(
                                             text = "${preset}M",
                                             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                                             fontWeight = FontWeight.Bold,
-                                            fontSize = androidx.compose.ui.unit.sp(12f),
+                                            fontSize = 12.sp,
                                             color = NeoBlackC,
-                                            letterSpacing = androidx.compose.ui.unit.TextUnit(1f, androidx.compose.ui.unit.TextUnitType.Sp)
+                                            letterSpacing = (1).sp
                                         )
                                     }
                                 }
@@ -1686,9 +1689,9 @@ fun SettingsScreen(
                         Text(
                             text = "DETECTION & HARDWARE SWITCHES",
                             fontWeight = FontWeight.ExtraBold,
-                            fontSize = androidx.compose.ui.unit.sp(12f),
+                            fontSize = 12.sp,
                             color = NeoInkC,
-                            letterSpacing = androidx.compose.ui.unit.TextUnit(0.5f, androidx.compose.ui.unit.TextUnitType.Sp)
+                            letterSpacing = (0.5).sp
                         )
                     }
 
@@ -1766,9 +1769,9 @@ fun SettingsScreen(
                         Text(
                             text = "YOUR PROFILE",
                             fontWeight = FontWeight.ExtraBold,
-                            fontSize = androidx.compose.ui.unit.sp(13f),
+                            fontSize = 13.sp,
                             color = NeoBlackC,
-                            letterSpacing = androidx.compose.ui.unit.TextUnit(1f, androidx.compose.ui.unit.TextUnitType.Sp)
+                            letterSpacing = (1).sp
                         )
                     }
 
@@ -1820,8 +1823,8 @@ fun SettingsScreen(
                                     text = "SAVE PROFILE",
                                     color = NeoBlackC,
                                     fontWeight = FontWeight.ExtraBold,
-                                    fontSize = androidx.compose.ui.unit.sp(14f),
-                                    letterSpacing = androidx.compose.ui.unit.TextUnit(1f, androidx.compose.ui.unit.TextUnitType.Sp)
+                                    fontSize = 14.sp,
+                                    letterSpacing = (1).sp
                                 )
                             }
                         }
@@ -1859,18 +1862,18 @@ private fun NeoToggleRow(
                 .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = icon, fontSize = androidx.compose.ui.unit.sp(22f))
+            Text(text = icon, fontSize = 22.sp)
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
                     fontWeight = FontWeight.Bold,
-                    fontSize = androidx.compose.ui.unit.sp(14f),
+                    fontSize = 14.sp,
                     color = Color(0xFF1B1B1B)
                 )
                 Text(
                     text = subtitle,
-                    fontSize = androidx.compose.ui.unit.sp(12f),
+                    fontSize = 12.sp,
                     color = Color(0xFF4B4731),
                     fontWeight = FontWeight.Medium
                 )
