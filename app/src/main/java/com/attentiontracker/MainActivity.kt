@@ -22,6 +22,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -543,184 +545,637 @@ fun DashboardScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    // ─── Neo-Brutalist Color Tokens ───────────────────────────────────────────
+    val NeoYellow        = Color(0xFFFFE600)
+    val NeoMint          = Color(0xFF2DE28D)
+    val NeoMintContainer = Color(0xFF53FCA4)
+    val NeoPink          = Color(0xFFFF5C8D)
+    val NeoCyan          = Color(0xFF38DBFF)
+    val NeoOrange        = Color(0xFFFF6B4A)
+    val NeoBlack         = Color(0xFF000000)
+    val NeoWhite         = Color(0xFFFFFFFF)
+    val NeoPaper         = Color(0xFFFFFDF9)
+    val NeoInk           = Color(0xFF1B1B1B)
+    val NeoSurface       = Color(0xFFF9F9F9)
+    val NeoCard          = Color(0xFFFFFFFF)
+    val NeoSurfaceMid    = Color(0xFFEEEEEE)
+    val NeoLavender      = Color(0xFFE8D5FF)
+
+    // Derive elapsedSeconds from elapsedText ("Looking for: Xs")
+    val elapsedSeconds: Long = remember(elapsedText) {
+        val match = Regex("(\\d+)s").find(elapsedText)
+        match?.groupValues?.getOrNull(1)?.toLongOrNull() ?: 0L
+    }
+    // 20-minute threshold for the hero progress bar (20-20-20 protocol)
+    val thresholdSeconds: Long = 1200L
+
+    // Derive face-detected from statusText
+    val isFaceDetected = statusText.contains("Looking at screen", ignoreCase = true) ||
+        statusText.contains("Tracking active", ignoreCase = true)
+
+    // Derive total screen time string from usageStats
+    val totalScreenTimeStr: String = remember(usageStats) {
+        val totalMs = usageStats.sumOf { it.timeMs }
+        if (totalMs == 0L) ""
+        else {
+            val h = totalMs / 3_600_000L
+            val m = (totalMs % 3_600_000L) / 60_000L
+            if (h > 0) "${h}h ${m}m" else "${m}m"
+        }
+    }
+
+    // Color tokens for analytics charts (kept from original)
+    val appColors = listOf(NeoYellow, NeoMint, NeoCyan, NeoPink, NeoOrange)
+    val timeOfDayColors = listOf(
+        Color(0xFFFFD54F), Color(0xFFFF8A65), Color(0xFF7986CB), Color(0xFF4FC3F7)
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(DarkNavy, MidNavy)))
+            .background(NeoPaper)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // ── Top bar ──
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ═══════════════════════════════════════════════════════════
+            // SECTION 1 — TOP HEADER
+            // ═══════════════════════════════════════════════════════════
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.End
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                IconButton(onClick = onOpenSettings) {
-                    Icon(
-                        imageVector = Icons.Rounded.Settings,
-                        contentDescription = "Settings",
-                        tint = Color.White
+                Text(
+                    text = "HEY, ${userName.uppercase()}! 👋",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = NeoInk,
+                    letterSpacing = 0.5.sp
+                )
+
+                // Settings button with neo offset shadow
+                Box(modifier = Modifier.padding(bottom = 3.dp, end = 3.dp)) {
+                    // Shadow layer
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .offset(x = 3.dp, y = 3.dp)
+                            .background(NeoBlack, RoundedCornerShape(4.dp))
                     )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Welcome back, $userName",
-                style = MaterialTheme.typography.titleLarge,
-                color = OnSurface,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // ── Status card ── fixed height so centering works ──
-            ElevatedCard(
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
-                colors = CardDefaults.elevatedCardColors(containerColor = SurfaceCard),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(110.dp)
-                    .padding(horizontal = 8.dp)
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = statusText,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = if (isTracking) AccentCyan else SubText
-                        )
-                        if (elapsedText.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = elapsedText,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = SubText
+                    // Button face
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(NeoSurfaceMid, RoundedCornerShape(4.dp))
+                            .border(3.dp, NeoBlack, RoundedCornerShape(4.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        IconButton(
+                            onClick = onOpenSettings,
+                            modifier = Modifier.size(44.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Settings,
+                                contentDescription = "Settings",
+                                tint = NeoBlack,
+                                modifier = Modifier.size(22.dp)
                             )
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            // ── Breaks completed card ──
-            ElevatedCard(
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
-                colors = CardDefaults.elevatedCardColors(containerColor = SurfaceCard),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-            ) {
+            // ═══════════════════════════════════════════════════════════
+            // SECTION 2 — HERO TRACKER CARD (Yellow)
+            // ═══════════════════════════════════════════════════════════
+            Box(modifier = Modifier.padding(bottom = 6.dp, end = 6.dp)) {
+                // Hard drop shadow – 6dp offset
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .matchParentSize()
+                        .offset(x = 6.dp, y = 6.dp)
+                        .background(NeoBlack, RoundedCornerShape(12.dp))
+                )
+                // Yellow card face
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                        .background(NeoYellow, RoundedCornerShape(12.dp))
+                        .border(4.dp, NeoBlack, RoundedCornerShape(12.dp))
+                        .padding(16.dp)
                 ) {
-                    Text(
-                        text = "Breaks Completed Today",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = AccentCyan
+                    // (a) Status badge pill
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        val pillBg = if (isFaceDetected) NeoMintContainer else NeoOrange
+                        val pillEmoji = if (isFaceDetected) "🟢" else "🔴"
+                        val pillText = if (isFaceDetected) "LOOKING AT SCREEN" else "LOOKING AWAY"
+                        Box(
+                            modifier = Modifier
+                                .background(pillBg, RoundedCornerShape(999.dp))
+                                .border(2.5.dp, NeoBlack, RoundedCornerShape(999.dp))
+                                .padding(horizontal = 14.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                text = "$pillEmoji $pillText",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = NeoBlack,
+                                letterSpacing = 0.8.sp
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // (b) Big countdown timer
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val displayTimer = if (elapsedText.isNotEmpty()) elapsedText else statusText
+                        Text(
+                            text = displayTimer,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            fontSize = 36.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = NeoBlack,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // (c) Threshold progress bar – 20 chunky rectangular cells
+                    val totalCells = 20
+                    val filledCells = if (thresholdSeconds > 0L)
+                        ((elapsedSeconds.toFloat() / thresholdSeconds.toFloat()) * totalCells)
+                            .toInt().coerceIn(0, totalCells)
+                    else 0
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        repeat(totalCells) { idx ->
+                            val isFilled = idx < filledCells
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(20.dp)
+                                    .background(
+                                        if (isFilled) NeoMint else NeoCard,
+                                        RoundedCornerShape(2.dp)
+                                    )
+                                    .border(1.5.dp, NeoBlack, RoundedCornerShape(2.dp))
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // (d) Primary action button
+                    Box(modifier = Modifier.padding(bottom = 4.dp, end = 4.dp)) {
+                        // Shadow
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .offset(x = 4.dp, y = 4.dp)
+                                .background(NeoBlack, RoundedCornerShape(12.dp))
+                        )
+                        // Button face
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .background(
+                                    if (!isTracking) NeoPink else NeoWhite,
+                                    RoundedCornerShape(12.dp)
+                                )
+                                .border(3.5.dp, NeoBlack, RoundedCornerShape(12.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            androidx.compose.material3.TextButton(
+                                onClick = onToggleTracking,
+                                modifier = Modifier.fillMaxSize(),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text(
+                                    text = if (!isTracking) "▶ START MONITORING" else "⏸ PAUSE MONITORING",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = NeoBlack,
+                                    letterSpacing = 0.5.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // ═══════════════════════════════════════════════════════════
+            // SECTION 3 — QUICK STATS 2-COLUMN GRID
+            // ═══════════════════════════════════════════════════════════
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Card A – Breaks Hit
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(bottom = 4.dp, end = 4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .matchParentSize()
+                            .offset(x = 4.dp, y = 4.dp)
+                            .background(NeoBlack, RoundedCornerShape(12.dp))
                     )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(NeoMintContainer, RoundedCornerShape(12.dp))
+                            .border(3.dp, NeoBlack, RoundedCornerShape(12.dp))
+                            .padding(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "BREAKS HIT",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = NeoBlack,
+                                letterSpacing = 1.sp
+                            )
+                            Text(text = "✅", fontSize = 14.sp)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.5.dp)
+                                .background(NeoBlack)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = "$completedBreaks",
+                            fontSize = 40.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = NeoBlack,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "today",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = NeoInk
+                        )
+                    }
+                }
+
+                // Card B – Screen Time
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(bottom = 4.dp, end = 4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .matchParentSize()
+                            .offset(x = 4.dp, y = 4.dp)
+                            .background(NeoBlack, RoundedCornerShape(12.dp))
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFF57FFD4), RoundedCornerShape(12.dp))
+                            .border(3.dp, NeoBlack, RoundedCornerShape(12.dp))
+                            .padding(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "SCREEN TIME",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = NeoBlack,
+                                letterSpacing = 1.sp
+                            )
+                            Text(text = "👁", fontSize = 14.sp)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.5.dp)
+                                .background(NeoBlack)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        if (!hasUsagePerm || totalScreenTimeStr.isEmpty()) {
+                            Text(
+                                text = if (!hasUsagePerm) "GRANT\nPERM" else "—",
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = NeoBlack,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                lineHeight = 28.sp
+                            )
+                        } else {
+                            Text(
+                                text = totalScreenTimeStr,
+                                fontSize = 34.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = NeoBlack,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "today",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = NeoInk
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // ═══════════════════════════════════════════════════════════
+            // SECTION 4 — HARDWARE & TELEMETRY CARD
+            // ═══════════════════════════════════════════════════════════
+            Box(modifier = Modifier.padding(bottom = 4.dp, end = 4.dp)) {
+                // Shadow
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .matchParentSize()
+                        .offset(x = 4.dp, y = 4.dp)
+                        .background(NeoBlack, RoundedCornerShape(12.dp))
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(NeoCard, RoundedCornerShape(12.dp))
+                        .border(3.dp, NeoBlack, RoundedCornerShape(12.dp))
+                        .padding(16.dp)
+                ) {
+                    // Header
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "🖥", fontSize = 16.sp)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "HARDWARE & TELEMETRY",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = NeoBlack,
+                                letterSpacing = 1.sp
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .background(NeoSurfaceMid, RoundedCornerShape(4.dp))
+                                .border(1.dp, NeoBlack, RoundedCornerShape(4.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = "OFFLINE NPU",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = NeoBlack,
+                                letterSpacing = 0.5.sp,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                            )
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(8.dp))
+                    Box(modifier = Modifier.fillMaxWidth().height(2.dp).background(NeoBlack))
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // 3-column telemetry tiles
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Battery tile
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(bottom = 3.dp, end = 3.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .matchParentSize()
+                                    .offset(x = 3.dp, y = 3.dp)
+                                    .background(NeoBlack, RoundedCornerShape(8.dp))
+                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(NeoMintContainer, RoundedCornerShape(8.dp))
+                                    .border(2.dp, NeoBlack, RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 8.dp, vertical = 10.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "🔋 —%",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = NeoBlack,
+                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "BATTERY",
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = NeoBlack,
+                                    letterSpacing = 0.5.sp
+                                )
+                            }
+                        }
+
+                        // Power Draw tile
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(bottom = 3.dp, end = 3.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .matchParentSize()
+                                    .offset(x = 3.dp, y = 3.dp)
+                                    .background(NeoBlack, RoundedCornerShape(8.dp))
+                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(NeoYellow, RoundedCornerShape(8.dp))
+                                    .border(2.dp, NeoBlack, RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 8.dp, vertical = 10.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "⚡ —mA",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = NeoBlack,
+                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "DRAW",
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = NeoBlack,
+                                    letterSpacing = 0.5.sp
+                                )
+                            }
+                        }
+
+                        // AI Mode tile
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(bottom = 3.dp, end = 3.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .matchParentSize()
+                                    .offset(x = 3.dp, y = 3.dp)
+                                    .background(NeoBlack, RoundedCornerShape(8.dp))
+                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(NeoLavender, RoundedCornerShape(8.dp))
+                                    .border(2.dp, NeoBlack, RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 8.dp, vertical = 10.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "📷 2 FPS",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = NeoBlack,
+                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "AI MODE",
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = NeoBlack,
+                                    letterSpacing = 0.5.sp
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Footer text
                     Text(
-                        text = "$completedBreaks",
-                        style = MaterialTheme.typography.displayMedium,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = OnSurface
+                        text = "Zero cloud latency. On-device detection.",
+                        fontSize = 11.sp,
+                        color = NeoInk.copy(alpha = 0.7f),
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // ── Tracking button (above charts) ──
-            val buttonColor by animateColorAsState(
-                targetValue = if (isTracking) Color(0xFFE53935) else AccentCyan,
-                label = "buttonColor"
-            )
-            val textColor by animateColorAsState(
-                targetValue = if (isTracking) Color.White else DarkNavy,
-                label = "textColor"
-            )
+            // ═══════════════════════════════════════════════════════════
+            // ANALYTICS SECTION — kept from original
+            // ═══════════════════════════════════════════════════════════
 
-            Button(
-                onClick = onToggleTracking,
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+            // NeoYellow underlined "YOUR EYES TODAY" header
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(horizontal = 8.dp)
-                    .height(56.dp)
+                    .padding(top = 4.dp, bottom = 20.dp)
             ) {
-                Text(
-                    text = if (isTracking) "Stop" else "Start Monitoring",
-                    color = textColor,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Column {
+                    Text(
+                        text = "YOUR EYES TODAY",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = NeoInk,
+                        letterSpacing = androidx.compose.ui.unit.TextUnit(-0.5f, androidx.compose.ui.unit.TextUnitType.Sp)
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(4.dp)
+                            .background(NeoYellow)
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // ── Screen Time Section ──
-            Text(
-                text = "App Wise Screen Time:",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = OnSurface,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Assuming permission requested on launch, always render charts section.
-            // If permission is denied, charts will gracefully display 'No data available'.
-                val appColors = listOf(
-                    AccentCyan,
-                    Color(0xFF81C784),
-                    Color(0xFFFFB74D),
-                    Color(0xFFE57373),
-                    Color(0xFFBA68C8)
-                )
-                val timeOfDayColors = listOf(
-                    Color(0xFFFFD54F), // Morning – warm yellow
-                    Color(0xFFFF8A65), // Afternoon – warm orange
-                    Color(0xFF7986CB), // Evening – indigo
-                    Color(0xFF4FC3F7)  // Night – cool cyan
-                )
-
-                // Bar chart — Top Apps
-                ElevatedCard(
+            // ── Neobrutalist BarChart container ──
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+            ) {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(310.dp)
-                        .padding(horizontal = 8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
-                    colors = CardDefaults.elevatedCardColors(containerColor = Color.White.copy(alpha = 0.05f))
+                        .height(314.dp)
+                        .offset(x = 4.dp, y = 4.dp)
+                        .background(NeoBlack)
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(314.dp)
+                        .background(NeoCard)
+                        .then(
+                            Modifier.border(
+                                width = 3.dp,
+                                color = NeoBlack,
+                                shape = androidx.compose.foundation.shape.RectangleShape
+                            )
+                        )
                 ) {
                     if (usageStats.isEmpty()) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("No data available", color = SubText, fontWeight = FontWeight.Bold)
+                            Text(
+                                "No data available",
+                                color = NeoInk,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     } else {
                         BarChart(
@@ -734,44 +1189,189 @@ fun DashboardScreen(
                         )
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-                // Pie chart — Time of day (distinct info from bar chart)
-                Text(
-                    text = "Screen Time Distribution:",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = OnSurface,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+            // ── Top Attention-Draining Apps List ──
+            if (usageStats.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(NeoYellow)
+                            .border(width = 3.dp, color = NeoBlack, shape = androidx.compose.foundation.shape.RectangleShape)
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "TOP ATTENTION DRAINS",
+                            fontWeight = FontWeight.ExtraBold,
+                            color = NeoBlack,
+                            style = MaterialTheme.typography.labelMedium,
+                            letterSpacing = androidx.compose.ui.unit.TextUnit(1.5f, androidx.compose.ui.unit.TextUnitType.Sp)
+                        )
+                    }
+                    Text(
+                        text = "${usageStats.size} APPS",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF4B4731)
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                ElevatedCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(240.dp)
-                        .padding(horizontal = 8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
-                    colors = CardDefaults.elevatedCardColors(containerColor = Color.White.copy(alpha = 0.05f))
-                ) {
-                    if (timeOfDayStats.isEmpty()) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("No data yet today", color = SubText, fontWeight = FontWeight.Bold)
-                        }
-                    } else {
-                        PieChart(
-                            data = timeOfDayStats.map { it.timeMs.toFloat() },
-                            labels = timeOfDayStats.map { it.label },
-                            colors = timeOfDayColors,
+                val maxUsageMs = usageStats.maxOfOrNull { it.timeMs } ?: 1L
+                val rowAccentColors = listOf(NeoYellow, NeoMint, NeoCyan, NeoOrange, NeoPink)
+
+                usageStats.forEachIndexed { index, app ->
+                    val barFillColor = rowAccentColors[index % rowAccentColors.size]
+                    val fillFraction = (app.timeMs.toFloat() / maxUsageMs.toFloat()).coerceIn(0f, 1f)
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp)
+                    ) {
+                        Box(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(20.dp)
+                                .fillMaxWidth()
+                                .matchParentSize()
+                                .offset(x = 3.dp, y = 3.dp)
+                                .background(NeoBlack)
                         )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(NeoCard)
+                                .border(width = 3.dp, color = NeoBlack, shape = androidx.compose.foundation.shape.RectangleShape)
+                                .padding(horizontal = 12.dp, vertical = 10.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .background(NeoSurfaceMid, shape = RoundedCornerShape(8.dp))
+                                            .border(width = 2.dp, color = NeoBlack, shape = RoundedCornerShape(8.dp)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        val drawable = app.icon
+                                        if (drawable != null) {
+                                            val bmp = remember(app.packageName) { drawableToBitmap(drawable) }
+                                            Image(
+                                                bitmap = bmp.asImageBitmap(),
+                                                contentDescription = app.label,
+                                                modifier = Modifier.size(24.dp)
+                                            )
+                                        } else {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(20.dp)
+                                                    .background(barFillColor, RoundedCornerShape(4.dp))
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(
+                                        text = app.label,
+                                        fontWeight = FontWeight.Bold,
+                                        color = NeoInk,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .background(NeoYellow)
+                                        .border(width = 2.dp, color = NeoBlack, shape = androidx.compose.foundation.shape.RectangleShape)
+                                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                                ) {
+                                    Text(
+                                        text = formatMs(app.timeMs),
+                                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = androidx.compose.ui.unit.sp(12f),
+                                        color = NeoBlack
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(14.dp)
+                                    .background(NeoCard)
+                                    .border(width = 2.dp, color = NeoBlack, shape = androidx.compose.foundation.shape.RectangleShape)
+                                    .padding(2.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .fillMaxWidth(fillFraction)
+                                        .background(NeoCyan)
+                                )
+                            }
+                        }
                     }
+
+                    Spacer(modifier = Modifier.height(10.dp))
                 }
+
+                Spacer(modifier = Modifier.height(14.dp))
+            }
+
+            // ── Screen Time Distribution (Pie chart) ──
+            Text(
+                text = "Screen Time Distribution:",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = NeoInk,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ElevatedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp)
+                    .padding(horizontal = 8.dp),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.elevatedCardColors(containerColor = NeoCard)
+            ) {
+                if (timeOfDayStats.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("No data yet today", color = NeoInk.copy(alpha = 0.5f), fontWeight = FontWeight.Bold)
+                    }
+                } else {
+                    PieChart(
+                        data = timeOfDayStats.map { it.timeMs.toFloat() },
+                        labels = timeOfDayStats.map { it.label },
+                        colors = timeOfDayColors,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(20.dp)
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
         }
@@ -787,17 +1387,38 @@ fun SettingsScreen(
     onChangeName: () -> Unit
 ) {
     BackHandler { onBack() }
-    
+
+    // ── Neo colour tokens (raw hex, no theme dependency) ──────────────────────
+    val NeoYellowC      = Color(0xFFFFE600)
+    val NeoMintC        = Color(0xFF2DE28D)
+    val NeoMintContainerC = Color(0xFF53FCA4)
+    val NeoBlackC       = Color(0xFF000000)
+    val NeoWhiteC       = Color(0xFFFFFFFF)
+    val NeoPaperC       = Color(0xFFFFFDF9)
+    val NeoInkC         = Color(0xFF1B1B1B)
+    val NeoSurfaceMidC  = Color(0xFFEEEEEE)
+    val NeoLavenderC    = Color(0xFFE8D5FF)
+
+    // Threshold in whole minutes for the stepper (clamped 1..60)
+    val thresholdMinutes = (threshold / 60L).coerceIn(1L, 60L)
+    val presets = listOf(15L, 20L, 25L, 30L)
+
+    var editedName by remember(userName) { mutableStateOf(userName) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(DarkNavy, MidNavy)))
+            .background(NeoPaperC)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 32.dp)
         ) {
+
+            // ── Back row ──────────────────────────────────────────────────────
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -808,108 +1429,436 @@ fun SettingsScreen(
                     Icon(
                         imageVector = Icons.Rounded.ArrowBack,
                         contentDescription = "Back",
-                        tint = OnSurface
+                        tint = NeoInkC
                     )
                 }
-                Spacer(modifier = Modifier.width(8.dp))
+            }
+
+            // ── Header section ────────────────────────────────────────────────
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "PREFERENCES & AI SENSORS",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = androidx.compose.ui.unit.sp(24f),
+                        color = NeoInkC,
+                        letterSpacing = androidx.compose.ui.unit.TextUnit(-0.5f, androidx.compose.ui.unit.TextUnitType.Sp)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Tune detection intervals and battery modes.",
+                        fontSize = androidx.compose.ui.unit.sp(14f),
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFF4B4731)
+                    )
+                }
+                // v2.0 sticker badge
+                Box(
+                    modifier = Modifier
+                        .graphicsLayer { rotationZ = 3f }
+                        .background(NeoLavenderC, RoundedCornerShape(50))
+                        .border(2.dp, NeoBlackC, RoundedCornerShape(50))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "v2.0",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = androidx.compose.ui.unit.sp(11f),
+                        color = NeoBlackC
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // ── Threshold Stepper Card ────────────────────────────────────────
+            Box(modifier = Modifier.fillMaxWidth()) {
+                // Hard shadow
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .offset(x = 5.dp, y = 5.dp)
+                        .background(NeoBlackC, RoundedCornerShape(12.dp))
+                )
+                // Card body
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(NeoWhiteC, RoundedCornerShape(12.dp))
+                        .border(4.dp, NeoBlackC, RoundedCornerShape(12.dp))
+                ) {
+                    // Card header band
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(NeoSurfaceMidC, RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = "EYE BREAK INTERVAL",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = androidx.compose.ui.unit.sp(13f),
+                            color = NeoInkC,
+                            letterSpacing = androidx.compose.ui.unit.TextUnit(1f, androidx.compose.ui.unit.TextUnitType.Sp)
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Stepper row
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            // Minus button
+                            Box(modifier = Modifier.size(64.dp)) {
+                                Box(
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .offset(x = 4.dp, y = 4.dp)
+                                        .background(NeoBlackC, RoundedCornerShape(8.dp))
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(64.dp)
+                                        .background(NeoYellowC, RoundedCornerShape(8.dp))
+                                        .border(4.dp, NeoBlackC, RoundedCornerShape(8.dp))
+                                        .clickable(
+                                            onClick = {
+                                                val newMin = (thresholdMinutes - 1L).coerceAtLeast(1L)
+                                                onThresholdChange(newMin * 60L)
+                                            }
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("−", fontWeight = FontWeight.ExtraBold,
+                                        fontSize = androidx.compose.ui.unit.sp(28f), color = NeoBlackC)
+                                }
+                            }
+
+                            // Centre display
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "$thresholdMinutes",
+                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = androidx.compose.ui.unit.sp(48f),
+                                    color = NeoInkC
+                                )
+                                Text(
+                                    text = "MIN",
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = androidx.compose.ui.unit.sp(14f),
+                                    color = NeoInkC,
+                                    letterSpacing = androidx.compose.ui.unit.TextUnit(2f, androidx.compose.ui.unit.TextUnitType.Sp)
+                                )
+                            }
+
+                            // Plus button
+                            Box(modifier = Modifier.size(64.dp)) {
+                                Box(
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .offset(x = 4.dp, y = 4.dp)
+                                        .background(NeoBlackC, RoundedCornerShape(8.dp))
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(64.dp)
+                                        .background(NeoYellowC, RoundedCornerShape(8.dp))
+                                        .border(4.dp, NeoBlackC, RoundedCornerShape(8.dp))
+                                        .clickable(
+                                            onClick = {
+                                                val newMin = (thresholdMinutes + 1L).coerceAtMost(60L)
+                                                onThresholdChange(newMin * 60L)
+                                            }
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("+", fontWeight = FontWeight.ExtraBold,
+                                        fontSize = androidx.compose.ui.unit.sp(28f), color = NeoBlackC)
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Quick preset pills
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            presets.forEach { preset ->
+                                val isSelected = thresholdMinutes == preset
+                                Box(modifier = Modifier.weight(1f)) {
+                                    // Shadow
+                                    Box(
+                                        modifier = Modifier
+                                            .matchParentSize()
+                                            .offset(x = 3.dp, y = 3.dp)
+                                            .background(NeoBlackC, RoundedCornerShape(6.dp))
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(
+                                                if (isSelected) NeoMintContainerC else NeoWhiteC,
+                                                RoundedCornerShape(6.dp)
+                                            )
+                                            .border(3.dp, NeoBlackC, RoundedCornerShape(6.dp))
+                                            .clickable { onThresholdChange(preset * 60L) }
+                                            .padding(vertical = 8.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "${preset}M",
+                                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = androidx.compose.ui.unit.sp(12f),
+                                            color = NeoBlackC,
+                                            letterSpacing = androidx.compose.ui.unit.TextUnit(1f, androidx.compose.ui.unit.TextUnitType.Sp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // ── AI & Hardware Toggles Card ────────────────────────────────────
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .offset(x = 4.dp, y = 4.dp)
+                        .background(NeoBlackC, RoundedCornerShape(12.dp))
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(NeoWhiteC, RoundedCornerShape(12.dp))
+                        .border(3.dp, NeoBlackC, RoundedCornerShape(12.dp))
+                ) {
+                    // Header band
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(NeoSurfaceMidC, RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = "DETECTION & HARDWARE SWITCHES",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = androidx.compose.ui.unit.sp(12f),
+                            color = NeoInkC,
+                            letterSpacing = androidx.compose.ui.unit.TextUnit(0.5f, androidx.compose.ui.unit.TextUnitType.Sp)
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // Toggle rows — visual wrappers only; logic untouched by callers
+                        NeoToggleRow(
+                            icon = "👁",
+                            title = "Front Camera Attention",
+                            subtitle = "Detects gaze direction at ultra-low power",
+                            checked = true,  // read-only visual; no logic change needed
+                            onCheckedChange = {},
+                            neoBlack = NeoBlackC,
+                            neoYellow = NeoYellowC,
+                            neoSurface = NeoSurfaceMidC
+                        )
+                        NeoToggleRow(
+                            icon = "🔔",
+                            title = "Live Sensor Shade",
+                            subtitle = "Show countdown in Android notification shade",
+                            checked = true,
+                            onCheckedChange = {},
+                            neoBlack = NeoBlackC,
+                            neoYellow = NeoYellowC,
+                            neoSurface = NeoSurfaceMidC
+                        )
+                        NeoToggleRow(
+                            icon = "📳",
+                            title = "Vibrate & Audio Cue",
+                            subtitle = "Haptic pulse & tone when 20 minutes elapsed",
+                            checked = true,
+                            onCheckedChange = {},
+                            neoBlack = NeoBlackC,
+                            neoYellow = NeoYellowC,
+                            neoSurface = NeoSurfaceMidC
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // ── Profile Card ──────────────────────────────────────────────────
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .offset(x = 4.dp, y = 4.dp)
+                        .background(NeoBlackC, RoundedCornerShape(12.dp))
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(NeoLavenderC, RoundedCornerShape(12.dp))
+                        .border(3.dp, NeoBlackC, RoundedCornerShape(12.dp))
+                ) {
+                    // Header band
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                NeoLavenderC.copy(alpha = 0.7f),
+                                RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+                            )
+                            .border(
+                                width = 0.dp, color = Color.Transparent,
+                                shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+                            )
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = "YOUR PROFILE",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = androidx.compose.ui.unit.sp(13f),
+                            color = NeoBlackC,
+                            letterSpacing = androidx.compose.ui.unit.TextUnit(1f, androidx.compose.ui.unit.TextUnitType.Sp)
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // Name input field
+                        OutlinedTextField(
+                            value = editedName,
+                            onValueChange = { editedName = it },
+                            placeholder = {
+                                Text("YOUR NAME", fontWeight = FontWeight.Bold, color = Color(0xFF9E9E9E))
+                            },
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedBorderColor = NeoBlackC,
+                                focusedBorderColor = NeoBlackC,
+                                focusedContainerColor = NeoWhiteC,
+                                unfocusedContainerColor = NeoWhiteC,
+                                cursorColor = NeoBlackC
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        // Save button
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            Box(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .offset(x = 4.dp, y = 4.dp)
+                                    .background(NeoBlackC, RoundedCornerShape(8.dp))
+                            )
+                            Button(
+                                onClick = {
+                                    if (editedName.isNotBlank()) onChangeName()
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = NeoMintC),
+                                shape = RoundedCornerShape(8.dp),
+                                border = androidx.compose.foundation.BorderStroke(3.dp, NeoBlackC),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp)
+                            ) {
+                                Text(
+                                    text = "SAVE PROFILE",
+                                    color = NeoBlackC,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = androidx.compose.ui.unit.sp(14f),
+                                    letterSpacing = androidx.compose.ui.unit.TextUnit(1f, androidx.compose.ui.unit.TextUnitType.Sp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ── Reusable Neo Toggle Row ───────────────────────────────────────────────────
+@Composable
+private fun NeoToggleRow(
+    icon: String,
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    neoBlack: Color,
+    neoYellow: Color,
+    neoSurface: Color
+) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .offset(x = 3.dp, y = 3.dp)
+                .background(neoBlack, RoundedCornerShape(8.dp))
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFFFFFFF), RoundedCornerShape(8.dp))
+                .border(3.dp, neoBlack, RoundedCornerShape(8.dp))
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = icon, fontSize = androidx.compose.ui.unit.sp(22f))
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Settings",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = OnSurface,
-                    fontWeight = FontWeight.Bold
+                    text = title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = androidx.compose.ui.unit.sp(14f),
+                    color = Color(0xFF1B1B1B)
+                )
+                Text(
+                    text = subtitle,
+                    fontSize = androidx.compose.ui.unit.sp(12f),
+                    color = Color(0xFF4B4731),
+                    fontWeight = FontWeight.Medium
                 )
             }
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            ElevatedCard(
-                colors = CardDefaults.elevatedCardColors(containerColor = SurfaceCard),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Break Threshold",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = AccentCyan,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    val formattedThreshold = if (threshold >= 60) {
-                        val m = threshold / 60
-                        val s = threshold % 60
-                        if (s > 0L) "$m m $s s" else "$m m"
-                    } else {
-                        "${threshold}s"
-                    }
-                    Text(
-                        text = "Break after: $formattedThreshold",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = SubText,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Slider(
-                        value = threshold.toFloat(),
-                        onValueChange = { onThresholdChange(it.toLong()) },
-                        valueRange = 10f..1200f,
-                        colors = SliderDefaults.colors(
-                            thumbColor = AccentCyan,
-                            activeTrackColor = AccentCyan
-                        )
-                    )
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            ElevatedCard(
-                colors = CardDefaults.elevatedCardColors(containerColor = SurfaceCard),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Profile",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = AccentCyan,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = userName,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = OnSurface,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(
-                        onClick = onChangeName,
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Text("Change Name", color = AccentCyan, fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = neoBlack,
+                    checkedTrackColor = neoYellow,
+                    uncheckedTrackColor = neoSurface
+                )
+            )
         }
     }
 }
@@ -929,7 +1878,7 @@ fun drawableToBitmap(drawable: android.graphics.drawable.Drawable): Bitmap {
     return bmp
 }
 
-// ── Bar Chart: Y-axis hour scale, gridlines, app icon + name + time ───────────
+// ── Bar Chart (Neo-Brutalist): Y-axis hour scale, thick black gridlines, solid fills ───────────
 
 @Composable
 fun BarChart(
@@ -944,79 +1893,133 @@ fun BarChart(
     // Compute the next whole-hour ceiling so Y-axis ticks are clean
     val maxMs = maxData.toLong()
     val maxHours = ((maxMs / 3_600_000L) + 1L).coerceAtLeast(1L).toInt()
-    val capturedColors = barColors.map { it }
 
+    // Neo-Brutalist bar fill colours: NeoYellow → NeoMint → NeoCyan, cycling
+    val neoBrutalColors = listOf(
+        Color(0xFFFFE600), // NeoYellow
+        Color(0xFF2DE28D), // NeoMint
+        Color(0xFF38DBFF), // NeoCyan
+        Color(0xFFFF5C8D), // NeoPink
+        Color(0xFFFF6B4A)  // NeoOrange
+    )
+    val capturedColors = neoBrutalColors
+
+    // Y-axis label paint – monospace black ink
     val axisPaint = remember {
         android.graphics.Paint().apply {
-            color = android.graphics.Color.argb(160, 150, 165, 185)
+            color = android.graphics.Color.BLACK
             textSize = 28f
             textAlign = android.graphics.Paint.Align.RIGHT
             isAntiAlias = true
+            typeface = android.graphics.Typeface.MONOSPACE
         }
     }
 
+    // Time label above each bar – black monospace
     val timePaint = remember {
         android.graphics.Paint().apply {
-            color = android.graphics.Color.WHITE
-            textSize = 26f
+            color = android.graphics.Color.BLACK
+            textSize = 24f
             textAlign = android.graphics.Paint.Align.CENTER
             isAntiAlias = true
-            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            typeface = android.graphics.Typeface.create(
+                android.graphics.Typeface.MONOSPACE,
+                android.graphics.Typeface.BOLD
+            )
+        }
+    }
+
+    // Thick gridline paint – black at 25% opacity
+    val gridPaint = remember {
+        android.graphics.Paint().apply {
+            color = android.graphics.Color.argb(64, 0, 0, 0) // 25% black
+            strokeWidth = 3f
+            style = android.graphics.Paint.Style.STROKE
+        }
+    }
+
+    // Black bar-outline paint
+    val barBorderPaint = remember {
+        android.graphics.Paint().apply {
+            color = android.graphics.Color.BLACK
+            strokeWidth = 2f
+            style = android.graphics.Paint.Style.STROKE
         }
     }
 
     Column(modifier = modifier) {
-        // Canvas draws Y-axis labels, horizontal gridlines, and the bars
+        // Canvas draws white background, Y-axis labels, thick black gridlines, and solid bars
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            val yAxisWidthPx = 36.dp.toPx()
+            val yAxisWidthPx = 40.dp.toPx()
             val chartWidth = size.width - yAxisWidthPx
             val count = data.size
             val totalGap = chartWidth * 0.15f
             val barWidth = (chartWidth - totalGap) / count
             val gap = totalGap / (count + 1)
 
-            // Draw gridlines + Y-axis hour labels (bottom=0h, top=maxHours)
+            // ── White chart area background ──
+            drawRect(
+                color = Color(0xFFFFFFFF),
+                topLeft = Offset(yAxisWidthPx, 0f),
+                size = androidx.compose.ui.geometry.Size(chartWidth, size.height)
+            )
+
+            // ── Thick black gridlines at each hour + Y-axis labels (monospace, black) ──
             for (hour in 0..maxHours) {
                 val y = size.height - (hour.toFloat() / maxHours.toFloat()) * size.height
-                drawLine(
-                    color = Color.White.copy(alpha = 0.08f),
-                    start = Offset(yAxisWidthPx, y),
-                    end = Offset(size.width, y),
-                    strokeWidth = 1f
+
+                // Draw thick black gridline (25% opacity)
+                drawContext.canvas.nativeCanvas.drawLine(
+                    yAxisWidthPx, y, size.width, y,
+                    gridPaint
                 )
-                // Clamp text baseline inside canvas: labels near the top/bottom get nudged inward
+
+                // Clamp text baseline inside canvas
                 val textY = (y + axisPaint.textSize / 3f)
                     .coerceIn(axisPaint.textSize, size.height - 2f)
                 drawContext.canvas.nativeCanvas.drawText(
                     "${hour}h",
-                    yAxisWidthPx - 4f,
+                    yAxisWidthPx - 6f,
                     textY,
                     axisPaint
                 )
             }
 
-            // Draw bars scaled against maxHours
+            // ── Draw bars: solid fill + 2px black Rect outline, no gradients ──
             for ((index, value) in data.withIndex()) {
                 val barHeight = (value / (maxHours.toFloat() * 3_600_000f)) * size.height
-                val x = yAxisWidthPx + gap + index * (barWidth + gap) + barWidth / 2f
+                val left = yAxisWidthPx + gap + index * (barWidth + gap)
+                val right = left + barWidth * 0.75f // actual bar footprint
+
                 if (barHeight > 0f) {
                     val topY = (size.height - barHeight).coerceAtLeast(0f)
-                    drawLine(
+
+                    // Solid fill – no gradients
+                    drawRect(
                         color = capturedColors[index % capturedColors.size],
-                        start = Offset(x, size.height),
-                        end = Offset(x, topY),
-                        strokeWidth = barWidth * 0.7f,
-                        cap = StrokeCap.Butt
+                        topLeft = Offset(left, topY),
+                        size = androidx.compose.ui.geometry.Size(right - left, barHeight)
                     )
-                    
-                    // Draw time string above the bar
-                    val timeStr = formatMs(value.toLong())
+
+                    // 2px solid black border drawn as outline Rect
+                    drawContext.canvas.nativeCanvas.drawRect(
+                        left, topY, right, size.height,
+                        barBorderPaint
+                    )
+
+                    // Time label above the bar – black monospace
+                    val centerX = (left + right) / 2f
                     val textY = (topY - 8f).coerceAtLeast(timePaint.textSize)
-                    drawContext.canvas.nativeCanvas.drawText(timeStr, x, textY, timePaint)
+                    drawContext.canvas.nativeCanvas.drawText(
+                        formatMs(value.toLong()),
+                        centerX,
+                        textY,
+                        timePaint
+                    )
                 }
             }
         }
@@ -1027,10 +2030,10 @@ fun BarChart(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 36.dp),
+                .padding(start = 40.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            data.forEachIndexed { index, value ->
+            data.forEachIndexed { index, _ ->
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -1039,19 +2042,29 @@ fun BarChart(
                     if (drawable != null) {
                         val labelKey = labels.getOrElse(index) { index.toString() }
                         val bmp = remember(labelKey) { drawableToBitmap(drawable) }
-                        Image(
-                            bitmap = bmp.asImageBitmap(),
-                            contentDescription = labels.getOrElse(index) { "" },
-                            modifier = Modifier.size(28.dp)
-                        )
+                        // App icon in a bordered square box (2dp border, 8dp corner radius)
+                        Box(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .background(Color(0xFFEEEEEE), RoundedCornerShape(4.dp))
+                                .border(2.dp, Color(0xFF000000), RoundedCornerShape(4.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                bitmap = bmp.asImageBitmap(),
+                                contentDescription = labels.getOrElse(index) { "" },
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
                     } else {
                         Box(
                             modifier = Modifier
                                 .size(28.dp)
                                 .background(
-                                    barColors[index % barColors.size],
-                                    shape = RoundedCornerShape(6.dp)
+                                    capturedColors[index % capturedColors.size],
+                                    shape = RoundedCornerShape(4.dp)
                                 )
+                                .border(2.dp, Color(0xFF000000), RoundedCornerShape(4.dp))
                         )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
@@ -1059,7 +2072,8 @@ fun BarChart(
                         Text(
                             text = labels.getOrElse(index) { "" },
                             style = MaterialTheme.typography.labelSmall,
-                            color = SubText,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1B1B1B),
                             maxLines = 2,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()

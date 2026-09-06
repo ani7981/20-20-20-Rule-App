@@ -53,10 +53,10 @@ class BreakOverlayManager(
     val isVisible: Boolean get() = _isVisible
 
     // ── Colours ───────────────────────────────────────────────────────────────
-    private val bgColor      = Color.argb(250, 10, 25, 41)   // #0A1929, near-opaque
-    private val accentColor  = Color.parseColor("#4FC3F7")    // light-blue
-    private val textColor    = Color.WHITE
-    private val btnTextColor = Color.parseColor("#0A1929")    // dark text on light btn
+    private val bgColor      = Color.parseColor("#2DE28D")   // NeoMint
+    private val accentColor  = Color.parseColor("#000000")   // NeoBlack
+    private val textColor    = Color.parseColor("#1B1B1B")   // NeoInk
+    private val btnColor     = Color.parseColor("#FFE600")   // NeoYellow
 
     // ── Public API ────────────────────────────────────────────────────────────
 
@@ -98,57 +98,101 @@ class BreakOverlayManager(
     // ── View construction ─────────────────────────────────────────────────────
 
     private fun buildView(): LinearLayout {
-        // Root container — full screen, dark navy
+        // Root container — full screen, NeoMint
         val root = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
             setBackgroundColor(bgColor)
-            setPadding(72, 72, 72, 72)
+            setPadding(48, 48, 48, 48)
         }
 
-        // Headline: light-blue, bold
-        root.addView(TextView(context).apply {
-            text = "Time to rest your eyes"
+        // Fake shadow wrapper
+        val cardWrapper = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            
+            // The shadow
+            val shadow = android.graphics.drawable.GradientDrawable().apply {
+                setColor(accentColor)
+                cornerRadius = 32f
+            }
+            background = shadow
+            setPadding(0, 0, 16, 16) // Bottom-right padding to push the inner card left/up, creating shadow effect
+        }
+
+        val card = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            val cardBg = android.graphics.drawable.GradientDrawable().apply {
+                setColor(Color.WHITE)
+                setStroke(12, accentColor)
+                cornerRadius = 32f
+            }
+            background = cardBg
+            setPadding(48, 80, 48, 80)
+        }
+
+        // Headline: NeoBlack, bold
+        card.addView(TextView(context).apply {
+            text = "REST YOUR EYES NOW! 👀"
             setTextColor(accentColor)
             textSize = 28f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
-            setPadding(0, 28, 0, 0)
         })
 
-        // Sub-message: white
-        root.addView(TextView(context).apply {
-            text = "Look at something 20 feet away"
+        // Sub-message: NeoInk
+        card.addView(TextView(context).apply {
+            text = "Look at an object 20 feet away."
             setTextColor(textColor)
             textSize = 17f
             gravity = Gravity.CENTER
-            setPadding(0, 28, 0, 56)
-            setLineSpacing(lineSpacingExtra, 1.5f)
+            setPadding(0, 16, 0, 48)
         })
 
         countdownTextView = TextView(context).apply {
             text = countdownValue.toString()
             setTextColor(accentColor)
-            textSize = 64f
-            typeface = Typeface.DEFAULT_BOLD
+            textSize = 84f
+            typeface = Typeface.MONOSPACE
             gravity = Gravity.CENTER
-            setPadding(0, 28, 0, 56)
+            setPadding(0, 0, 0, 64)
         }
-        root.addView(countdownTextView)
+        card.addView(countdownTextView)
 
-        // Dismiss button: light-blue background, dark text
-        root.addView(Button(context).apply {
-            text = "Dismiss"
-            setTextColor(btnTextColor)
-            setBackgroundColor(accentColor)
-            textSize = 16f
+        // Dismiss button: NeoYellow background, NeoBlack text, NeoBlack border
+        val btnWrapper = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            val shadow = android.graphics.drawable.GradientDrawable().apply {
+                setColor(accentColor)
+                cornerRadius = 24f
+            }
+            background = shadow
+            setPadding(0, 0, 12, 12)
+        }
+        
+        val dismissBtn = Button(context).apply {
+            text = "✓ DONE - DISMISS"
+            setTextColor(accentColor)
+            val btnBg = android.graphics.drawable.GradientDrawable().apply {
+                setColor(btnColor)
+                setStroke(10, accentColor)
+                cornerRadius = 24f
+            }
+            background = btnBg
+            textSize = 18f
             typeface = Typeface.DEFAULT_BOLD
-            setPadding(64, 32, 64, 32)
+            setPadding(64, 40, 64, 40)
             setOnClickListener {
                 hide()
                 onDismissed()
             }
-        })
+        }
+        btnWrapper.addView(dismissBtn)
+        card.addView(btnWrapper)
+
+        cardWrapper.addView(card)
+        root.addView(cardWrapper)
 
         return root
     }
