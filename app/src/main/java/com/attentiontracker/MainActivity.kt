@@ -510,23 +510,36 @@ fun DashboardScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
+    
+    // Fetch data whenever app resumes, AND immediately on first composition
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                hasUsagePerm = hasUsageStatsPermission(context)
-                if (hasUsagePerm) {
-                    coroutineScope.launch(Dispatchers.IO) {
-                        val newUsage = getTodayUsageStats(context)
-                        val newTimeOfDay = getTimeOfDayUsage(context)
-                        launch(Dispatchers.Main) {
-                            usageStats = newUsage
-                            timeOfDayStats = newTimeOfDay
-                        }
+        val fetchData = {
+            hasUsagePerm = hasUsageStatsPermission(context)
+            if (hasUsagePerm) {
+                coroutineScope.launch(Dispatchers.IO) {
+                    val newUsage = getTodayUsageStats(context)
+                    val newTimeOfDay = getTimeOfDayUsage(context)
+                    launch(Dispatchers.Main) {
+                        usageStats = newUsage
+                        timeOfDayStats = newTimeOfDay
                     }
                 }
             }
         }
+        
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                fetchData()
+            }
+        }
+        
+        // Add observer for lifecycle changes
         lifecycleOwner.lifecycle.addObserver(observer)
+        
+        // Force an immediate initial fetch because ON_RESUME might have already fired
+        // before this composable was added to the screen
+        fetchData()
+        
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
