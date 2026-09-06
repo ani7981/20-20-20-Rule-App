@@ -434,10 +434,15 @@ class MainActivity : AppCompatActivity() {
 fun OnboardingScreen(onContinue: (String) -> Unit) {
     var name by remember { mutableStateOf<String>("") }
     
+    val NeoPaper = Color(0xFFFFFDF9)
+    val NeoInk = Color(0xFF1B1B1B)
+    val NeoYellow = Color(0xFFFFE600)
+    val NeoBlack = Color(0xFF000000)
+    
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(DarkNavy, MidNavy)))
+            .background(NeoPaper)
     ) {
         Column(
             modifier = Modifier
@@ -447,16 +452,18 @@ fun OnboardingScreen(onContinue: (String) -> Unit) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Welcome",
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.Bold,
-                color = OnSurface
+                text = "HELLO!",
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Black,
+                color = NeoInk,
+                letterSpacing = (-1).sp
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "What should we call you?",
                 style = MaterialTheme.typography.titleMedium,
-                color = SubText
+                fontWeight = FontWeight.Bold,
+                color = NeoInk
             )
             Spacer(modifier = Modifier.height(32.dp))
             
@@ -466,30 +473,48 @@ fun OnboardingScreen(onContinue: (String) -> Unit) {
                 placeholder = { Text("Your name") },
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = AccentCyan,
-                    cursorColor = AccentCyan,
-                    focusedLabelColor = AccentCyan
+                    focusedBorderColor = NeoBlack,
+                    unfocusedBorderColor = NeoBlack,
+                    cursorColor = NeoBlack,
+                    focusedTextColor = NeoInk,
+                    unfocusedTextColor = NeoInk
                 ),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth()
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(3.dp, NeoBlack, RoundedCornerShape(8.dp))
             )
             
             Spacer(modifier = Modifier.height(32.dp))
             
-            Button(
-                onClick = { onContinue(name) },
-                enabled = name.isNotBlank(),
-                colors = ButtonDefaults.buttonColors(containerColor = AccentCyan),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-            ) {
-                Text(
-                    text = "Continue",
-                    color = DarkNavy,
-                    fontWeight = FontWeight.Bold
+            Box(modifier = Modifier.padding(bottom = 4.dp, end = 4.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .offset(x = 4.dp, y = 4.dp)
+                        .background(NeoBlack, RoundedCornerShape(12.dp))
                 )
+                Button(
+                    onClick = { onContinue(name) },
+                    enabled = name.isNotBlank(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = NeoYellow,
+                        disabledContainerColor = Color(0xFFE2E2E2)
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .border(3.dp, NeoBlack, RoundedCornerShape(12.dp))
+                ) {
+                    Text(
+                        text = "CONTINUE",
+                        color = NeoBlack,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 1.sp
+                    )
+                }
             }
         }
     }
