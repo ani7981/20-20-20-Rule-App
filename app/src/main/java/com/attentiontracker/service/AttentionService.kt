@@ -12,6 +12,8 @@ import android.os.BatteryManager
 import android.os.Build
 import android.util.Log
 import android.util.Size
+import android.view.OrientationEventListener
+import android.view.Surface
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -73,6 +75,7 @@ class AttentionService : LifecycleService() {
     private lateinit var overlayManager: BreakOverlayManager
     private lateinit var prefManager: PreferenceManager
     private lateinit var cameraExecutor: ExecutorService
+    private var orientationEventListener: OrientationEventListener? = null
 
     // ── Timer state ────────────────────────────────────────────────────────────
     private var lookingStartTime = 0L   // epoch ms; 0 = not currently looking
@@ -182,6 +185,7 @@ class AttentionService : LifecycleService() {
         super.onDestroy()
         timerJob?.cancel()
         cameraExecutor.shutdown()
+        orientationEventListener?.disable()
         overlayManager.hide()
         // Clean up receivers and secondary notification
         try { unregisterReceiver(batteryReceiver) } catch (_: Exception) {}
@@ -202,6 +206,20 @@ class AttentionService : LifecycleService() {
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                     .also { it.setAnalyzer(cameraExecutor, FaceAnalyzer(::onFaceResult)) }
+                    
+                orientationEventListener = object : OrientationEventListener(this) {
+                    override fun onOrientationChanged(orientation: Int) {
+                        if (orientation == ORIENTATION_UNKNOWN) return
+                        val rotation = when (orientation) {
+                            in 45..134 -> Surface.ROTATION_270
+                            in 135..224 -> Surface.ROTATION_180
+                            in 225..314 -> Surface.ROTATION_90
+                            else -> Surface.ROTATION_0
+                        }
+                        analysis.targetRotation = rotation
+                    }
+                }
+                orientationEventListener?.enable()
 
                 provider.unbindAll()
                 provider.bindToLifecycle(
