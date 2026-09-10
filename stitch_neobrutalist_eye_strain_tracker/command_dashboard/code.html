@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,600,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;background-color:#f9f9f9;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { 'colors': { 'primary': '#6a5f00', 'on-tertiary': '#ffffff', 'tertiary-fixed': '#ffd9df', 'on-secondary-container': '#007242', 'surface-container-high': '#e8e8e8', 'secondary-fixed-dim': '#2ce28d', 'on-secondary': '#ffffff', 'surface-variant': '#e2e2e2', 'surface': '#f9f9f9', 'on-error': '#ffffff', 'error': '#ba1a1a', 'secondary': '#006d3f', 'tertiary-fixed-dim': '#ffb1c1', 'inverse-surface': '#303030', 'on-primary-fixed-variant': '#504700', 'primary-fixed': '#fde400', 'on-primary-container': '#726600', 'primary-fixed-dim': '#dec800', 'on-secondary-fixed-variant': '#00522e', 'on-primary': '#ffffff', 'surface-container-lowest': '#ffffff', 'surface-tint': '#6a5f00', 'on-secondary-fixed': '#002110', 'error-container': '#ffdad6', 'secondary-container': '#53fca4', 'surface-container': '#eeeeee', 'surface-container-low': '#f3f3f3', 'on-surface-variant': '#4b4731', 'inverse-primary': '#dec800', 'on-tertiary-fixed-variant': '#8f003f', 'on-surface': '#1b1b1b', 'surface-dim': '#dadada', 'surface-bright': '#f9f9f9', 'on-error-container': '#93000a', 'inverse-on-surface': '#f1f1f1', 'on-tertiary-fixed': '#3f0018', 'on-tertiary-container': '#bd285d', 'tertiary': '#b31f56', 'surface-container-highest': '#e2e2e2', 'outline-variant': '#cdc7aa', 'on-primary-fixed': '#201c00', 'primary-container': '#ffe600', 'tertiary-container': '#ffdce1', 'background': '#f9f9f9', 'secondary-fixed': '#57ffa7', 'on-background': '#1b1b1b', 'outline': '#7c775f' }, 'borderRadius': { 'DEFAULT': '0.125rem', 'lg': '0.25rem', 'xl': '0.5rem', 'full': '0.75rem' }, 'spacing': { 'space-xs': '8px', 'border-md': '4px', 'space-xl': '24px', 'gutter-mobile': '12px', 'border-sm': '3px', 'space-sm': '12px', 'space-xxs': '4px', 'space-lg': '20px', 'offset-shadow-lg': '6px', 'offset-shadow-md': '4px', 'offset-shadow-sm': '3px', 'space-3xl': '48px', 'space-md': '16px', 'screen-margin-mobile': '16px', 'space-2xl': '32px' }, 'fontFamily': { 'timer-display': ['Space Mono'], 'headline-md': ['Space Grotesk'], 'label-badge': ['Space Grotesk'], 'headline-lg': ['Space Grotesk'], 'label-code': ['Space Mono'], 'headline-sm': ['Space Grotesk'], 'body-sm': ['Space Grotesk'], 'timer-display-mobile': ['Space Mono'], 'body-lg': ['Space Grotesk'], 'display-hero-mobile': ['Space Grotesk'], 'label-telemetry': ['Space Mono'], 'display-hero': ['Space Grotesk'], 'body-md': ['Space Grotesk'] }, 'fontSize': { 'timer-display': ['64px', { 'lineHeight': '64px', 'letterSpacing': '-0.05em', 'fontWeight': '700' }], 'headline-md': ['24px', { 'lineHeight': '28px', 'letterSpacing': '-0.01em', 'fontWeight': '700' }], 'label-badge': ['11px', { 'lineHeight': '12px', 'letterSpacing': '0.06em', 'fontWeight': '700' }], 'headline-lg': ['32px', { 'lineHeight': '36px', 'letterSpacing': '-0.02em', 'fontWeight': '700' }], 'label-code': ['14px', { 'lineHeight': '18px', 'letterSpacing': '0.04em', 'fontWeight': '700' }], 'headline-sm': ['20px', { 'lineHeight': '24px', 'letterSpacing': '0em', 'fontWeight': '700' }], 'body-sm': ['12px', { 'lineHeight': '16px', 'letterSpacing': '0.01em', 'fontWeight': '500' }], 'timer-display-mobile': ['48px', { 'lineHeight': '48px', 'letterSpacing': '-0.04em', 'fontWeight': '700' }], 'body-lg': ['16px', { 'lineHeight': '22px', 'letterSpacing': '0em', 'fontWeight': '500' }], 'display-hero-mobile': ['42px', { 'lineHeight': '44px', 'letterSpacing': '-0.03em', 'fontWeight': '700' }], 'label-telemetry': ['10px', { 'lineHeight': '12px', 'letterSpacing': '0.08em', 'fontWeight': '400' }], 'display-hero': ['56px', { 'lineHeight': '58px', 'letterSpacing': '-0.04em', 'fontWeight': '700' }], 'body-md': ['14px', { 'lineHeight': '20px', 'letterSpacing': '0em', 'fontWeight': '500' }] } } } };</script></head><body class="bg-surface text-on-surface font-body-md flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 px-space-md flex items-center justify-between"><div class="flex items-center gap-space-xs"><img alt="20-20-20 Eye Tracker Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WMpBSFP0SBFMDFYFp42wVGdwXxHVxXFcZE7T3f1-g7orhYbU4xZOSetCGJav4bHn5HB0pouEeJSDz1cEfPx6_OdkVS1tNBF0jSQE8LqbtyHAkb_Mg0naG6cD0XxUugNIqLfL5qy3LlzitMdjsRAA912fi5iS0Wl3YweaFWjvob5RpBI1wqsEJLCXnEGlwExRPkjHQaCB6LXoN1MWroOmjXsNbCLDIwS2-Eb-e8j8sHlQbLXVWOHiEBg4k"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface">20·20·20 TRACKER</span><span class="font-label-badge text-label-badge text-on-surface-variant uppercase">Tracker</span></div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="flex flex-col relative w-full px-screen-margin-mobile pt-20 pb-space-3xl bg-surface min-h-screen"><div class="flex flex-col w-full gap-space-lg select-none">
+<!-- Interactive Style Helpers -->
+<style>
+    .neo-box-sm { box-shadow: 3px 3px 0px #000000; }
+    .neo-box-md { box-shadow: 4px 4px 0px #000000; }
+    .neo-box-lg { box-shadow: 6px 6px 0px #000000; }
+    .neo-box-btn { box-shadow: 4px 5px 0px #000000; }
+    .neo-press:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000000 !important; }
+    .neo-press-lg:active { transform: translate(4px, 5px); box-shadow: 0px 0px 0px #000000 !important; }
+    .diag-stripes {
+      background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 6px, transparent 6px, transparent 12px);
+    }
+  </style>
+<!-- 1. Header Section -->
+<header class="flex items-center justify-between gap-space-xs mt-space-xs">
+<!-- Greeting Sticker Badges -->
+<div class="relative flex items-center">
+<div class="flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container-lowest border-[3px] border-black rounded-full neo-box-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-container border border-black animate-ping"></span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface tracking-tight">HEY, ALEX 👋</span>
+</div>
+<div class="absolute -top-3 -right-6 rotate-6 px-2 py-0.5 bg-secondary-fixed border-[2px] border-black rounded neo-box-sm z-10">
+<span class="font-label-badge text-label-badge uppercase text-black font-bold tracking-wider">PRO MODE</span>
+</div>
+</div>
+<!-- Right Controls: Calibration & Low-Drain Status -->
+<button aria-label="Camera Calibration" class="w-12 h-12 flex items-center justify-center bg-primary-container border-[3px] border-black rounded-xl neo-box-sm neo-press transition-transform" id="calibrate-btn">
+<span class="material-symbols-outlined text-black text-2xl font-bold">tune</span>
+</button>
+</header>
+<!-- 2. Hero Live Tracker Card -->
+<section class="relative bg-primary-container border-[4px] border-black rounded-xl p-space-md neo-box-lg flex flex-col gap-space-md">
+<!-- Sticker Elements -->
+<div class="flex flex-wrap items-center justify-between gap-space-xs">
+<!-- Live Status Pill -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-lowest border-[3px] border-black rounded-full neo-box-sm">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
+</span>
+<span class="font-label-code text-label-code uppercase text-black font-bold tracking-tight" id="gaze-status">LOOKING AT SCREEN</span>
+</div>
+<!-- Telemetry Chip -->
+<div class="-rotate-2 px-2.5 py-1 bg-surface-container-lowest border-[2px] border-black rounded neo-box-sm">
+<span class="font-label-telemetry text-label-telemetry uppercase text-black font-bold">⚡ 2 FPS AI ACTIVE</span>
+</div>
+</div>
+<!-- Countdown Display -->
+<div class="flex flex-col items-center justify-center py-space-xs my-1 bg-surface-container-lowest border-[3px] border-black rounded-lg neo-box-sm">
+<div class="flex items-baseline gap-1">
+<span class="font-timer-display-mobile text-timer-display-mobile font-bold tracking-tight text-black" id="timer-val">14:20</span>
+<span class="font-headline-sm text-headline-sm text-outline font-bold">s</span>
+</div>
+<div class="flex items-center gap-1.5 mt-[-4px]">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">timer</span>
+<span class="font-label-telemetry text-label-telemetry uppercase tracking-widest text-on-surface-variant font-bold">/ 20:00 INTERVAL PROTOCOL</span>
+</div>
+</div>
+<!-- Segmented Brutalist Progress Bar (4 Blocks) -->
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center px-1">
+<span class="font-label-badge text-label-badge uppercase text-black">INTERVAL SATURATION</span>
+<span class="font-label-badge text-label-badge uppercase text-black">75% STAGE</span>
+</div>
+<div class="grid grid-cols-4 gap-2 h-7 w-full p-1 bg-surface-container-lowest border-[3px] border-black rounded-lg">
+<!-- Completed Block 1 -->
+<div class="h-full bg-secondary-fixed border-[2px] border-black rounded-sm diag-stripes"></div>
+<!-- Completed Block 2 -->
+<div class="h-full bg-secondary-fixed border-[2px] border-black rounded-sm diag-stripes"></div>
+<!-- Completed Block 3 -->
+<div class="h-full bg-secondary-fixed border-[2px] border-black rounded-sm diag-stripes"></div>
+<!-- Active / Empty Block 4 -->
+<div class="h-full bg-surface-container-lowest border-[2px] border-black rounded-sm"></div>
+</div>
+</div>
+<!-- Big Action Button (Cyber Pink CTA) -->
+<div class="flex flex-col gap-1 mt-1">
+<button class="w-full py-3.5 px-4 bg-tertiary text-on-tertiary border-[3.5px] border-black rounded-xl neo-box-btn neo-press-lg transition-transform flex items-center justify-center gap-2" id="toggle-run-btn">
+<span class="material-symbols-outlined text-2xl font-bold">pause_circle</span>
+<span class="font-headline-sm text-headline-sm uppercase tracking-wide" id="btn-text">PAUSE MONITORING</span>
+</button>
+<div class="flex justify-center items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-xs text-black">touch_app</span>
+<span class="font-label-telemetry text-label-telemetry uppercase text-black font-bold">TAP ONCE TO PAUSE · 20-20-20 SHIELD ACTIVE</span>
+</div>
+</div>
+</section>
+<!-- 3. Quick Stats Grid (2-Column Responsive Neo-Cards) -->
+<section class="grid grid-cols-2 gap-space-md">
+<!-- Card A: Breaks Completed -->
+<article class="flex flex-col justify-between bg-secondary-container border-[3px] border-black rounded-xl p-3.5 neo-box-md min-h-[140px]">
+<div class="flex items-center justify-between border-b-[2px] border-black pb-2">
+<span class="font-label-badge text-label-badge uppercase font-bold text-black">BREAKS HIT</span>
+<span class="material-symbols-outlined text-base text-black">verified</span>
+</div>
+<div class="my-auto py-1">
+<div class="font-headline-lg text-headline-lg font-bold text-black tracking-tight leading-none">6 / 8</div>
+</div>
+<div class="bg-surface-container-lowest/80 border-[1.5px] border-black rounded px-1.5 py-1 flex items-center gap-1">
+<span class="font-label-badge text-label-badge font-bold text-black">🎯 75% Target met</span>
+</div>
+</article>
+<!-- Card B: Screen Time -->
+<article class="flex flex-col justify-between bg-secondary-fixed border-[3px] border-black rounded-xl p-3.5 neo-box-md min-h-[140px]">
+<div class="flex items-center justify-between border-b-[2px] border-black pb-2">
+<span class="font-label-badge text-label-badge uppercase font-bold text-black">SCREEN TIME</span>
+<span class="material-symbols-outlined text-base text-black">visibility</span>
+</div>
+<div class="my-auto py-1">
+<div class="font-headline-lg text-headline-lg font-bold text-black tracking-tight leading-none">4h 12m</div>
+</div>
+<div class="bg-surface-container-lowest/80 border-[1.5px] border-black rounded px-1.5 py-1 flex items-center gap-1">
+<span class="font-label-badge text-label-badge font-bold text-black">⚡ -18m vs yest.</span>
+</div>
+</article>
+</section>
+<!-- 4. Hardware & Efficiency Card -->
+<section class="flex flex-col gap-3 bg-surface-container-lowest border-[3px] border-black rounded-xl p-space-md neo-box-md">
+<!-- Card Header Sticker -->
+<div class="flex items-center justify-between border-b-[2px] border-black pb-2">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-lg text-black">memory</span>
+<span class="font-label-badge text-label-badge uppercase text-black font-bold tracking-wide">HARDWARE &amp; TELEMETRY</span>
+</div>
+<span class="px-1.5 py-0.5 bg-surface-container-high border border-black rounded font-label-telemetry text-label-telemetry uppercase text-black font-bold">OFFLINE NPU</span>
+</div>
+<!-- 3-Pill Telemetry Row -->
+<div class="grid grid-cols-3 gap-2">
+<!-- Battery -->
+<div class="flex flex-col items-center justify-center p-2 bg-secondary-container border-[2px] border-black rounded-lg neo-box-sm">
+<span class="font-label-badge text-label-badge font-bold text-black">🔋 82%</span>
+<span class="font-label-telemetry text-label-telemetry text-black uppercase">Batt Safe</span>
+</div>
+<!-- Power Draw -->
+<div class="flex flex-col items-center justify-center p-2 bg-primary-container border-[2px] border-black rounded-lg neo-box-sm">
+<span class="font-label-badge text-label-badge font-bold text-black">⚡ 240 mA</span>
+<span class="font-label-telemetry text-label-telemetry text-black uppercase">Low Draw</span>
+</div>
+<!-- AI Mode -->
+<div class="flex flex-col items-center justify-center p-2 bg-tertiary-container border-[2px] border-black rounded-lg neo-box-sm">
+<span class="font-label-badge text-label-badge font-bold text-black">📷 2 FPS</span>
+<span class="font-label-telemetry text-label-telemetry text-on-tertiary-container uppercase">Vision AI</span>
+</div>
+</div>
+<!-- Explanatory Footnote -->
+<div class="flex items-center gap-2 pt-1">
+<span class="material-symbols-outlined text-sm text-secondary">security</span>
+<p class="font-body-sm text-body-sm text-on-surface leading-tight">
+        Zero cloud latency. On-device gaze calculation protects your battery &amp; ocular rhythm.
+      </p>
+</div>
+</section>
+<!-- Interactive State Engine -->
+<script>
+    (function() {
+      let isRunning = true;
+      let secondsRemaining = 860; // 14m 20s
+      const timerDisplay = document.getElementById('timer-val');
+      const toggleBtn = document.getElementById('toggle-run-btn');
+      const btnText = document.getElementById('btn-text');
+      const statusPill = document.getElementById('gaze-status');
+      const calibrateBtn = document.getElementById('calibrate-btn');
+
+      function formatTime(totalSec) {
+        const m = Math.floor(totalSec / 60);
+        const s = totalSec % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      // Timer ticker
+      setInterval(() => {
+        if (isRunning && secondsRemaining > 0) {
+          secondsRemaining--;
+          timerDisplay.textContent = formatTime(secondsRemaining);
+        }
+      }, 1000);
+
+      // Action button pause/resume
+      toggleBtn.addEventListener('click', () => {
+        isRunning = !isRunning;
+        if (isRunning) {
+          btnText.textContent = "PAUSE MONITORING";
+          toggleBtn.className = "w-full py-3.5 px-4 bg-tertiary text-on-tertiary border-[3.5px] border-black rounded-xl neo-box-btn neo-press-lg transition-transform flex items-center justify-center gap-2";
+          statusPill.textContent = "LOOKING AT SCREEN";
+        } else {
+          btnText.textContent = "RESUME INTERVAL";
+          toggleBtn.className = "w-full py-3.5 px-4 bg-secondary-fixed-dim text-black border-[3.5px] border-black rounded-xl neo-box-btn neo-press-lg transition-transform flex items-center justify-center gap-2";
+          statusPill.textContent = "SESSION PAUSED";
+        }
+      });
+
+      // Calibrate toast feedback
+      calibrateBtn.addEventListener('click', () => {
+        calibrateBtn.classList.add('bg-secondary-fixed');
+        setTimeout(() => {
+          calibrateBtn.classList.remove('bg-secondary-fixed');
+        }, 300);
+      });
+    })();
+  </script>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]" data-active-classes="bg-primary-container text-on-primary-fixed"><div class="flex justify-around items-center h-20 px-space-xs"><a aria-current="page" class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-space-xs py-space-xxs rounded-lg transition-colors bg-primary-container text-on-primary-fixed" data-path="tracker" href="#"><span class="material-symbols-outlined text-2xl">visibility</span><span class="font-label-badge text-label-badge uppercase mt-1">Tracker</span></a><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-space-xs py-space-xxs rounded-lg text-on-surface-variant transition-colors" data-path="analytics" href="#"><span class="material-symbols-outlined text-2xl">bar_chart</span><span class="font-label-badge text-label-badge uppercase mt-1">Analytics</span></a><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-space-xs py-space-xxs rounded-lg text-on-surface-variant transition-colors" data-path="rest-mode" href="#"><span class="material-symbols-outlined text-2xl">spa</span><span class="font-label-badge text-label-badge uppercase mt-1">Rest Mode</span></a><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-space-xs py-space-xxs rounded-lg text-on-surface-variant transition-colors" data-path="settings" href="#"><span class="material-symbols-outlined text-2xl">tune</span><span class="font-label-badge text-label-badge uppercase mt-1">Settings</span></a></div></nav></body></html>

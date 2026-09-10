@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,600,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;background-color:#f9f9f9;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { 'colors': { 'primary': '#6a5f00', 'on-tertiary': '#ffffff', 'tertiary-fixed': '#ffd9df', 'on-secondary-container': '#007242', 'surface-container-high': '#e8e8e8', 'secondary-fixed-dim': '#2ce28d', 'on-secondary': '#ffffff', 'surface-variant': '#e2e2e2', 'surface': '#f9f9f9', 'on-error': '#ffffff', 'error': '#ba1a1a', 'secondary': '#006d3f', 'tertiary-fixed-dim': '#ffb1c1', 'inverse-surface': '#303030', 'on-primary-fixed-variant': '#504700', 'primary-fixed': '#fde400', 'on-primary-container': '#726600', 'primary-fixed-dim': '#dec800', 'on-secondary-fixed-variant': '#00522e', 'on-primary': '#ffffff', 'surface-container-lowest': '#ffffff', 'surface-tint': '#6a5f00', 'on-secondary-fixed': '#002110', 'error-container': '#ffdad6', 'secondary-container': '#53fca4', 'surface-container': '#eeeeee', 'surface-container-low': '#f3f3f3', 'on-surface-variant': '#4b4731', 'inverse-primary': '#dec800', 'on-tertiary-fixed-variant': '#8f003f', 'on-surface': '#1b1b1b', 'surface-dim': '#dadada', 'surface-bright': '#f9f9f9', 'on-error-container': '#93000a', 'inverse-on-surface': '#f1f1f1', 'on-tertiary-fixed': '#3f0018', 'on-tertiary-container': '#bd285d', 'tertiary': '#b31f56', 'surface-container-highest': '#e2e2e2', 'outline-variant': '#cdc7aa', 'on-primary-fixed': '#201c00', 'primary-container': '#ffe600', 'tertiary-container': '#ffdce1', 'background': '#f9f9f9', 'secondary-fixed': '#57ffa7', 'on-background': '#1b1b1b', 'outline': '#7c775f' }, 'borderRadius': { 'DEFAULT': '0.125rem', 'lg': '0.25rem', 'xl': '0.5rem', 'full': '0.75rem' }, 'spacing': { 'space-xs': '8px', 'border-md': '4px', 'space-xl': '24px', 'gutter-mobile': '12px', 'border-sm': '3px', 'space-sm': '12px', 'space-xxs': '4px', 'space-lg': '20px', 'offset-shadow-lg': '6px', 'offset-shadow-md': '4px', 'offset-shadow-sm': '3px', 'space-3xl': '48px', 'space-md': '16px', 'screen-margin-mobile': '16px', 'space-2xl': '32px' }, 'fontFamily': { 'timer-display': ['Space Mono'], 'headline-md': ['Space Grotesk'], 'label-badge': ['Space Grotesk'], 'headline-lg': ['Space Grotesk'], 'label-code': ['Space Mono'], 'headline-sm': ['Space Grotesk'], 'body-sm': ['Space Grotesk'], 'timer-display-mobile': ['Space Mono'], 'body-lg': ['Space Grotesk'], 'display-hero-mobile': ['Space Grotesk'], 'label-telemetry': ['Space Mono'], 'display-hero': ['Space Grotesk'], 'body-md': ['Space Grotesk'] }, 'fontSize': { 'timer-display': ['64px', { 'lineHeight': '64px', 'letterSpacing': '-0.05em', 'fontWeight': '700' }], 'headline-md': ['24px', { 'lineHeight': '28px', 'letterSpacing': '-0.01em', 'fontWeight': '700' }], 'label-badge': ['11px', { 'lineHeight': '12px', 'letterSpacing': '0.06em', 'fontWeight': '700' }], 'headline-lg': ['32px', { 'lineHeight': '36px', 'letterSpacing': '-0.02em', 'fontWeight': '700' }], 'label-code': ['14px', { 'lineHeight': '18px', 'letterSpacing': '0.04em', 'fontWeight': '700' }], 'headline-sm': ['20px', { 'lineHeight': '24px', 'letterSpacing': '0em', 'fontWeight': '700' }], 'body-sm': ['12px', { 'lineHeight': '16px', 'letterSpacing': '0.01em', 'fontWeight': '500' }], 'timer-display-mobile': ['48px', { 'lineHeight': '48px', 'letterSpacing': '-0.04em', 'fontWeight': '700' }], 'body-lg': ['16px', { 'lineHeight': '22px', 'letterSpacing': '0em', 'fontWeight': '500' }], 'display-hero-mobile': ['42px', { 'lineHeight': '44px', 'letterSpacing': '-0.03em', 'fontWeight': '700' }], 'label-telemetry': ['10px', { 'lineHeight': '12px', 'letterSpacing': '0.08em', 'fontWeight': '400' }], 'display-hero': ['56px', { 'lineHeight': '58px', 'letterSpacing': '-0.04em', 'fontWeight': '700' }], 'body-md': ['14px', { 'lineHeight': '20px', 'letterSpacing': '0em', 'fontWeight': '500' }] } } } };</script></head><body class="bg-surface text-on-surface font-body-md flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 px-space-md flex items-center justify-between"><div class="flex items-center gap-space-xs"><img alt="20-20-20 Eye Tracker Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WMpBSFP0SBFMDFYFp42wVGdwXxHVxXFcZE7T3f1-g7orhYbU4xZOSetCGJav4bHn5HB0pouEeJSDz1cEfPx6_OdkVS1tNBF0jSQE8LqbtyHAkb_Mg0naG6cD0XxUugNIqLfL5qy3LlzitMdjsRAA912fi5iS0Wl3YweaFWjvob5RpBI1wqsEJLCXnEGlwExRPkjHQaCB6LXoN1MWroOmjXsNbCLDIwS2-Eb-e8j8sHlQbLXVWOHiEBg4k"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface">20·20·20 TRACKER</span><span class="font-label-badge text-label-badge text-on-surface-variant uppercase">Analytics</span></div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="flex flex-col relative w-full px-screen-margin-mobile pt-20 pb-space-3xl bg-surface min-h-screen"><div class="flex flex-col w-full pb-space-2xl space-y-space-lg">
+<!-- Top Section: Header & Date Selector -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<div class="flex items-center justify-between">
+<div class="relative inline-block">
+<span class="absolute -bottom-1 left-0 w-full h-3.5 bg-primary-container z-0"></span>
+<h1 class="relative z-10 font-headline-lg text-headline-lg text-on-surface uppercase tracking-tight">
+          YOUR EYES TODAY
+        </h1>
+</div>
+<!-- Date Chip -->
+<button class="flex items-center gap-space-xxs bg-surface-container-lowest px-space-sm py-1.5 border-[3px] border-on-surface shadow-[3px_3px_0px_#1b1b1b] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all">
+<span class="font-label-code text-label-code text-on-surface uppercase">TODAY, OCT 24</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface">arrow_drop_down</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant font-medium">
+      Aggregated biometric gaze strain metrics &amp; app splits.
+    </p>
+</div>
+<!-- Hero Analytics Card: Time-of-Day Eye Strain Bar Chart -->
+<div class="bg-surface-container-lowest border-[4px] border-on-surface shadow-[5px_5px_0px_#1b1b1b] p-space-md flex flex-col gap-space-md">
+<!-- Card Header with Legend -->
+<div class="flex flex-col gap-space-xs border-b-[3px] border-on-surface pb-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">
+          STRAIN BY TIME OF DAY
+        </span>
+<span class="material-symbols-outlined text-secondary text-2xl">monitoring</span>
+</div>
+<div class="flex items-center gap-space-md pt-space-xxs">
+<div class="flex items-center gap-1.5">
+<span class="w-3.5 h-3.5 bg-tertiary border-[2px] border-on-surface"></span>
+<span class="font-label-badge text-label-badge uppercase text-on-surface-variant">High Strain</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3.5 h-3.5 bg-secondary-fixed-dim border-[2px] border-on-surface"></span>
+<span class="font-label-badge text-label-badge uppercase text-on-surface-variant">Normal Strain</span>
+</div>
+</div>
+</div>
+<!-- Brutalist Vertical Bar Chart Container -->
+<div class="relative w-full h-56 pt-2 pb-6 px-1 flex flex-col justify-between">
+<!-- Background Y-Axis Reference Dashed Lines -->
+<div class="absolute inset-x-8 top-4 bottom-8 flex flex-col justify-between pointer-events-none z-0">
+<div class="w-full flex items-center gap-2">
+<span class="font-label-telemetry text-label-telemetry text-on-surface-variant w-4 text-right">4h</span>
+<div class="flex-1 border-b-[2px] border-dashed border-outline-variant"></div>
+</div>
+<div class="w-full flex items-center gap-2">
+<span class="font-label-telemetry text-label-telemetry text-on-surface-variant w-4 text-right">3h</span>
+<div class="flex-1 border-b-[2px] border-dashed border-outline-variant"></div>
+</div>
+<div class="w-full flex items-center gap-2">
+<span class="font-label-telemetry text-label-telemetry text-on-surface-variant w-4 text-right">2h</span>
+<div class="flex-1 border-b-[2px] border-dashed border-outline-variant"></div>
+</div>
+<div class="w-full flex items-center gap-2">
+<span class="font-label-telemetry text-label-telemetry text-on-surface-variant w-4 text-right">1h</span>
+<div class="flex-1 border-b-[2px] border-dashed border-outline-variant"></div>
+</div>
+</div>
+<!-- Bars Flex Grid -->
+<div class="relative z-10 w-full h-full pl-7 flex items-end justify-between gap-2 pt-2">
+<!-- Morning Bar (1.8h / 45%) -->
+<div class="flex-1 flex flex-col items-center h-full justify-end group">
+<span class="font-label-code text-[11px] text-on-surface mb-1">1.8h</span>
+<div class="w-full h-[45%] bg-[#38DBFF] border-[3px] border-on-surface shadow-[3px_3px_0px_#1b1b1b] transition-transform active:scale-95"></div>
+<span class="font-label-badge text-[10px] text-on-surface mt-2 text-center uppercase tracking-tight">08-12</span>
+<span class="font-label-telemetry text-[9px] text-on-surface-variant uppercase">MORN</span>
+</div>
+<!-- Afternoon Bar - PEAK STRAIN (3.2h / 80%) -->
+<div class="flex-1 flex flex-col items-center h-full justify-end relative">
+<!-- Peak Alert Floating Sticker -->
+<div class="absolute -top-3.5 bg-tertiary text-on-tertiary px-1.5 py-0.5 border-[2px] border-on-surface shadow-[2px_2px_0px_#1b1b1b] -rotate-3 z-20">
+<span class="font-label-badge text-[9px] uppercase tracking-wider block">PEAK!</span>
+</div>
+<span class="font-label-code text-[11px] text-tertiary font-bold mb-1">3.2h</span>
+<div class="w-full h-[80%] bg-tertiary border-[3px] border-on-surface shadow-[3px_3px_0px_#1b1b1b] relative overflow-hidden transition-transform active:scale-95" style="background-image: repeating-linear-gradient(45deg, #FF5C8D, #FF5C8D 8px, #1b1b1b 8px, #1b1b1b 11px);">
+<!-- Diagonal Striped Fill via CSS overlay -->
+</div>
+<span class="font-label-badge text-[10px] text-on-surface mt-2 text-center uppercase tracking-tight">12-16</span>
+<span class="font-label-telemetry text-[9px] text-tertiary font-bold uppercase">AFTN</span>
+</div>
+<!-- Evening Bar (2.1h / 52.5%) -->
+<div class="flex-1 flex flex-col items-center h-full justify-end">
+<span class="font-label-code text-[11px] text-on-surface mb-1">2.1h</span>
+<div class="w-full h-[52%] bg-secondary-fixed-dim border-[3px] border-on-surface shadow-[3px_3px_0px_#1b1b1b] transition-transform active:scale-95"></div>
+<span class="font-label-badge text-[10px] text-on-surface mt-2 text-center uppercase tracking-tight">16-20</span>
+<span class="font-label-telemetry text-[9px] text-on-surface-variant uppercase">EVE</span>
+</div>
+<!-- Night Bar (0.8h / 20%) -->
+<div class="flex-1 flex flex-col items-center h-full justify-end">
+<span class="font-label-code text-[11px] text-on-surface mb-1">0.8h</span>
+<div class="w-full h-[20%] bg-primary-container border-[3px] border-on-surface shadow-[3px_3px_0px_#1b1b1b] relative overflow-hidden transition-transform active:scale-95" style="background-image: radial-gradient(#1b1b1b 18%, transparent 18%); background-size: 7px 7px;">
+<!-- Dotted Yellow Pattern -->
+</div>
+<span class="font-label-badge text-[10px] text-on-surface mt-2 text-center uppercase tracking-tight">20-24</span>
+<span class="font-label-telemetry text-[9px] text-on-surface-variant uppercase">NITE</span>
+</div>
+</div>
+</div>
+<!-- Chart Footer Micro Telemetry -->
+<div class="flex items-center justify-between pt-space-xs border-t-[2px] border-dashed border-outline-variant">
+<span class="font-label-telemetry text-label-telemetry text-on-surface-variant uppercase">
+        AVG GAZE FREQ: 42 BLINKS/MIN
+      </span>
+<span class="font-label-telemetry text-label-telemetry text-secondary uppercase font-bold">
+        OPTIMAL REST RATIO: 82%
+      </span>
+</div>
+</div>
+<!-- Attention Draining Apps Section -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<!-- Header with Sticker Badge -->
+<div class="flex items-center justify-between">
+<div class="inline-flex items-center gap-space-xs bg-primary-container px-space-sm py-1 border-[3px] border-on-surface shadow-[3px_3px_0px_#1b1b1b] rotate-[-1deg]">
+<span class="material-symbols-outlined text-[18px] text-on-surface font-bold">warning</span>
+<span class="font-headline-sm text-[13px] text-on-surface uppercase tracking-wider">
+          TOP ATTENTION DRAINS
+        </span>
+</div>
+<span class="font-label-badge text-label-badge text-on-surface-variant uppercase">4 APPS TRACKED</span>
+</div>
+<!-- App Breakdown Card List -->
+<div class="flex flex-col gap-space-sm">
+<!-- App 1: Instagram -->
+<div class="bg-[#FFFDF9] border-[3px] border-on-surface shadow-[3px_3px_0px_#1b1b1b] p-3.5 flex flex-col gap-2.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 bg-tertiary border-[2px] border-on-surface flex items-center justify-center text-on-tertiary">
+<span class="material-symbols-outlined text-[18px]">photo_camera</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-[15px] text-on-surface leading-none">Instagram</span>
+<span class="font-label-telemetry text-label-telemetry text-on-surface-variant uppercase mt-0.5">Social • Continuous Scroll</span>
+</div>
+</div>
+<div class="bg-tertiary-fixed border-[2px] border-on-surface px-2 py-0.5 shadow-[2px_2px_0px_#1b1b1b]">
+<span class="font-label-code text-[12px] text-on-tertiary-fixed font-bold">1h 45m</span>
+</div>
+</div>
+<!-- Progress Bar with Diagonal Hatched Fill -->
+<div class="w-full h-4 bg-surface-container-lowest border-[2.5px] border-on-surface flex p-0.5">
+<div class="h-full border-r-[2px] border-on-surface" style="width: 62%; background-color: #FF5C8D; background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, #1b1b1b 4px, #1b1b1b 6px);"></div>
+</div>
+</div>
+<!-- App 2: YouTube -->
+<div class="bg-[#FFFDF9] border-[3px] border-on-surface shadow-[3px_3px_0px_#1b1b1b] p-3.5 flex flex-col gap-2.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 bg-[#FF6B4A] border-[2px] border-on-surface flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[18px]">smart_display</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-[15px] text-on-surface leading-none">YouTube</span>
+<span class="font-label-telemetry text-label-telemetry text-on-surface-variant uppercase mt-0.5">Video • Glare Heavy</span>
+</div>
+</div>
+<div class="bg-[#FF6B4A]/20 border-[2px] border-on-surface px-2 py-0.5 shadow-[2px_2px_0px_#1b1b1b]">
+<span class="font-label-code text-[12px] text-on-surface font-bold">52m</span>
+</div>
+</div>
+<!-- Progress Bar (35%) -->
+<div class="w-full h-4 bg-surface-container-lowest border-[2.5px] border-on-surface flex p-0.5">
+<div class="h-full bg-[#FF6B4A] border-r-[2px] border-on-surface" style="width: 35%;"></div>
+</div>
+</div>
+<!-- App 3: Slack / Work -->
+<div class="bg-[#FFFDF9] border-[3px] border-on-surface shadow-[3px_3px_0px_#1b1b1b] p-3.5 flex flex-col gap-2.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 bg-primary-container border-[2px] border-on-surface flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-[15px] text-on-surface leading-none">Slack / Work</span>
+<span class="font-label-telemetry text-label-telemetry text-on-surface-variant uppercase mt-0.5">Productivity • Text Strain</span>
+</div>
+</div>
+<div class="bg-primary-container border-[2px] border-on-surface px-2 py-0.5 shadow-[2px_2px_0px_#1b1b1b]">
+<span class="font-label-code text-[12px] text-on-primary-fixed font-bold">48m</span>
+</div>
+</div>
+<!-- Progress Bar (28%) -->
+<div class="w-full h-4 bg-surface-container-lowest border-[2.5px] border-on-surface flex p-0.5">
+<div class="h-full bg-primary-container border-r-[2px] border-on-surface" style="width: 28%;"></div>
+</div>
+</div>
+<!-- App 4: Chrome Browser -->
+<div class="bg-[#FFFDF9] border-[3px] border-on-surface shadow-[3px_3px_0px_#1b1b1b] p-3.5 flex flex-col gap-2.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 bg-[#38DBFF] border-[2px] border-on-surface flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[18px]">public</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-[15px] text-on-surface leading-none">Chrome Browser</span>
+<span class="font-label-telemetry text-label-telemetry text-on-surface-variant uppercase mt-0.5">Web • High Brightness</span>
+</div>
+</div>
+<div class="bg-[#38DBFF]/30 border-[2px] border-on-surface px-2 py-0.5 shadow-[2px_2px_0px_#1b1b1b]">
+<span class="font-label-code text-[12px] text-on-surface font-bold">37m</span>
+</div>
+</div>
+<!-- Progress Bar (20%) -->
+<div class="w-full h-4 bg-surface-container-lowest border-[2.5px] border-on-surface flex p-0.5">
+<div class="h-full bg-[#38DBFF] border-r-[2px] border-on-surface" style="width: 20%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Daily Summary Badge Callout -->
+<div class="bg-secondary-fixed-dim border-[4px] border-on-surface shadow-[5px_5px_0px_#1b1b1b] p-space-md flex items-center gap-space-md">
+<div class="w-14 h-14 bg-surface-container-lowest border-[3px] border-on-surface shadow-[3px_3px_0px_#1b1b1b] flex items-center justify-center shrink-0">
+<!-- Retro Eye Mascot Icon -->
+<span class="material-symbols-outlined text-secondary text-[36px]" style="font-variation-settings: 'FILL' 1;">mood</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-[15px] uppercase text-on-surface font-bold">
+          EYE STRAIN SCORE: 34
+        </span>
+<span class="bg-surface-container-lowest border-[2px] border-on-surface text-[10px] font-headline-sm px-1.5 uppercase">LOW</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-secondary-fixed-variant font-bold mt-0.5">
+        GREAT JOB! Keep taking 20s breaks.
+      </p>
+</div>
+</div>
+<!-- Interactive Action Button -->
+<div class="pt-space-xs">
+<button class="w-full py-3.5 bg-surface-container-lowest border-[4px] border-on-surface shadow-[4px_4px_0px_#1b1b1b] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-space-xs">
+<span class="material-symbols-outlined text-on-surface text-xl">download</span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface tracking-tight">EXPORT TELEMETRY REPORT</span>
+</button>
+</div>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]" data-active-classes="bg-primary-container text-on-primary-fixed"><div class="flex justify-around items-center h-20 px-space-xs"><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-space-xs py-space-xxs rounded-lg text-on-surface-variant transition-colors" data-path="tracker" href="#"><span class="material-symbols-outlined text-2xl">visibility</span><span class="font-label-badge text-label-badge uppercase mt-1">Tracker</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-space-xs py-space-xxs rounded-lg transition-colors bg-primary-container text-on-primary-fixed" data-path="analytics" href="#"><span class="material-symbols-outlined text-2xl">bar_chart</span><span class="font-label-badge text-label-badge uppercase mt-1">Analytics</span></a><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-space-xs py-space-xxs rounded-lg text-on-surface-variant transition-colors" data-path="rest-mode" href="#"><span class="material-symbols-outlined text-2xl">spa</span><span class="font-label-badge text-label-badge uppercase mt-1">Rest Mode</span></a><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-space-xs py-space-xxs rounded-lg text-on-surface-variant transition-colors" data-path="settings" href="#"><span class="material-symbols-outlined text-2xl">tune</span><span class="font-label-badge text-label-badge uppercase mt-1">Settings</span></a></div></nav></body></html>

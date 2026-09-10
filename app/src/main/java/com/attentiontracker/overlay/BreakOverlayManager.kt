@@ -20,6 +20,7 @@ import android.widget.TextView
 /**
  * Manages a full-screen system overlay drawn via [WindowManager] using the
  * [android.permission.SYSTEM_ALERT_WINDOW] permission.
+ * Styled in the Optical Kinetic Neo-Brutalist design language.
  */
 class BreakOverlayManager(
     private val context: Context,
@@ -39,7 +40,7 @@ class BreakOverlayManager(
         override fun run() {
             countdownValue--
             if (countdownValue > 0) {
-                countdownTextView?.text = countdownValue.toString()
+                countdownTextView?.text = String.format("%02d", countdownValue)
                 mainHandler.postDelayed(this, 1000)
             } else {
                 hide()
@@ -52,11 +53,14 @@ class BreakOverlayManager(
     /** `true` while the overlay is on screen. */
     val isVisible: Boolean get() = _isVisible
 
-    // ── Colours ───────────────────────────────────────────────────────────────
-    private val bgColor      = Color.parseColor("#2DE28D")   // NeoMint
-    private val accentColor  = Color.parseColor("#000000")   // NeoBlack
-    private val textColor    = Color.parseColor("#1B1B1B")   // NeoInk
-    private val btnColor     = Color.parseColor("#FFE600")   // NeoYellow
+    // ── Neo-Brutalist Colors ──────────────────────────────────────────────────
+    private val bgColor       = Color.parseColor("#F9F9F9")   // Canvas
+    private val blackColor    = Color.parseColor("#000000")   // Ink / Borders / Shadows
+    private val inkColor      = Color.parseColor("#1B1B1B")   // Typography
+    private val yellowColor   = Color.parseColor("#FFE600")   // Electric Yellow
+    private val pinkColor     = Color.parseColor("#B31F56")   // Critical Override Cyber Pink
+    private val mintContainer = Color.parseColor("#53FCA4")   // Optical Target Mint
+    private val darkGreen     = Color.parseColor("#006D3F")   // Target Subtitle
 
     // ── Public API ────────────────────────────────────────────────────────────
 
@@ -69,10 +73,10 @@ class BreakOverlayManager(
             windowManager.addView(view, buildLayoutParams())
             overlayView = view
             _isVisible = true
-            
+
             view.alpha = 0f
-            view.animate().alpha(1f).setDuration(600).start()
-            
+            view.animate().alpha(1f).setDuration(400).start()
+
             mainHandler.postDelayed(countdownRunnable, 1000)
             triggerVibration()
         } catch (e: Exception) {
@@ -98,99 +102,250 @@ class BreakOverlayManager(
     // ── View construction ─────────────────────────────────────────────────────
 
     private fun buildView(): LinearLayout {
-        // Root container — full screen, NeoMint
+        // Root container — full screen, warm canvas
         val root = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
             setBackgroundColor(bgColor)
-            setPadding(48, 48, 48, 48)
+            setPadding(32, 48, 32, 48)
         }
 
-        // Fake shadow wrapper
+        // 1. Warning Bar Strip at top
+        val warningShadow = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            val shadowBg = android.graphics.drawable.GradientDrawable().apply {
+                setColor(blackColor)
+                cornerRadius = 24f
+            }
+            background = shadowBg
+            setPadding(0, 0, 8, 8)
+        }
+
+        val warningBar = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val barBg = android.graphics.drawable.GradientDrawable().apply {
+                setColor(yellowColor)
+                setStroke(8, blackColor)
+                cornerRadius = 24f
+            }
+            background = barBg
+            setPadding(28, 18, 28, 18)
+        }
+
+        val warningText = TextView(context).apply {
+            text = "⚠ 20-MIN LIMIT REACHED"
+            setTextColor(inkColor)
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+        val emergencyBadge = TextView(context).apply {
+            text = "RETINA EMERGENCY"
+            setTextColor(inkColor)
+            textSize = 10f
+            typeface = Typeface.DEFAULT_BOLD
+            val badgeBg = android.graphics.drawable.GradientDrawable().apply {
+                setColor(Color.WHITE)
+                setStroke(4, blackColor)
+                cornerRadius = 999f
+            }
+            background = badgeBg
+            setPadding(16, 6, 16, 6)
+        }
+
+        warningBar.addView(warningText)
+        warningBar.addView(emergencyBadge)
+        warningShadow.addView(warningBar)
+
+        val warningParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            bottomMargin = 32
+        }
+        root.addView(warningShadow, warningParams)
+
+        // 2. Main Instruction & Countdown Card with 6px hard shadow
         val cardWrapper = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            
-            // The shadow
             val shadow = android.graphics.drawable.GradientDrawable().apply {
-                setColor(accentColor)
+                setColor(blackColor)
                 cornerRadius = 32f
             }
             background = shadow
-            setPadding(0, 0, 16, 16) // Bottom-right padding to push the inner card left/up, creating shadow effect
+            setPadding(0, 0, 14, 14)
         }
 
         val card = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
             val cardBg = android.graphics.drawable.GradientDrawable().apply {
                 setColor(Color.WHITE)
-                setStroke(12, accentColor)
+                setStroke(10, blackColor)
                 cornerRadius = 32f
             }
             background = cardBg
-            setPadding(48, 80, 48, 80)
         }
 
-        // Headline: NeoBlack, bold
-        card.addView(TextView(context).apply {
+        // Cyber Pink Top Bar
+        val headerBar = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val hBg = android.graphics.drawable.GradientDrawable().apply {
+                setColor(pinkColor)
+                cornerRadii = floatArrayOf(24f, 24f, 24f, 24f, 0f, 0f, 0f, 0f)
+            }
+            background = hBg
+            setPadding(28, 16, 28, 16)
+        }
+        val headerTitle = TextView(context).apply {
+            text = "CRITICAL OVERRIDE"
+            setTextColor(Color.WHITE)
+            textSize = 12f
+            typeface = Typeface.MONOSPACE
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+        val ruleBadge = TextView(context).apply {
+            text = "RULE 20·20·20"
+            setTextColor(blackColor)
+            textSize = 10f
+            typeface = Typeface.DEFAULT_BOLD
+            val rBg = android.graphics.drawable.GradientDrawable().apply {
+                setColor(yellowColor)
+                setStroke(4, blackColor)
+                cornerRadius = 999f
+            }
+            background = rBg
+            setPadding(16, 6, 16, 6)
+        }
+        headerBar.addView(headerTitle)
+        headerBar.addView(ruleBadge)
+        card.addView(headerBar)
+
+        // Card Content
+        val cardContent = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(32, 28, 32, 32)
+            gravity = Gravity.CENTER_HORIZONTAL
+        }
+
+        // Title: REST YOUR EYES NOW! 👀
+        cardContent.addView(TextView(context).apply {
             text = "REST YOUR EYES NOW! 👀"
-            setTextColor(accentColor)
-            textSize = 28f
+            setTextColor(inkColor)
+            textSize = 24f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
+            setPadding(0, 0, 0, 16)
         })
 
-        // Sub-message: NeoInk
-        card.addView(TextView(context).apply {
-            text = "Look at an object 20 feet away."
-            setTextColor(textColor)
-            textSize = 17f
-            gravity = Gravity.CENTER
-            setPadding(0, 16, 0, 48)
+        // Optical Deflection Target Box (Mint)
+        val deflectionBox = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            val dBg = android.graphics.drawable.GradientDrawable().apply {
+                setColor(mintContainer)
+                setStroke(6, blackColor)
+                cornerRadius = 20f
+            }
+            background = dBg
+            setPadding(24, 18, 24, 18)
+        }
+        deflectionBox.addView(TextView(context).apply {
+            text = "OPTICAL DEFLECTION TARGET ≥ 20 FT (6M)"
+            setTextColor(darkGreen)
+            textSize = 11f
+            typeface = Typeface.DEFAULT_BOLD
         })
+        deflectionBox.addView(TextView(context).apply {
+            text = "Stop staring at this screen. Fixate on an object across the room, out a window, or down the corridor."
+            setTextColor(inkColor)
+            textSize = 12f
+            setPadding(0, 8, 0, 0)
+        })
+        cardContent.addView(deflectionBox)
 
+        // Giant Countdown Numeral (Space Mono / Monospace)
         countdownTextView = TextView(context).apply {
             text = countdownValue.toString()
-            setTextColor(accentColor)
-            textSize = 84f
+            setTextColor(inkColor)
+            textSize = 72f
             typeface = Typeface.MONOSPACE
             gravity = Gravity.CENTER
-            setPadding(0, 0, 0, 64)
+            setPadding(0, 20, 0, 4)
         }
-        card.addView(countdownTextView)
+        cardContent.addView(countdownTextView)
 
-        // Dismiss button: NeoYellow background, NeoBlack text, NeoBlack border
-        val btnWrapper = LinearLayout(context).apply {
+        cardContent.addView(TextView(context).apply {
+            text = "Blink softly • Breathe deeply • Release jaw tension"
+            setTextColor(Color.parseColor("#4B4731"))
+            textSize = 11f
+            gravity = Gravity.CENTER
+            setPadding(0, 0, 0, 24)
+        })
+
+        // Big Yellow CTA Button
+        val btnShadow = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             val shadow = android.graphics.drawable.GradientDrawable().apply {
-                setColor(accentColor)
-                cornerRadius = 24f
+                setColor(blackColor)
+                cornerRadius = 20f
             }
             background = shadow
-            setPadding(0, 0, 12, 12)
+            setPadding(0, 0, 8, 8)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
         }
-        
+
         val dismissBtn = Button(context).apply {
-            text = "✓ DONE - DISMISS"
-            setTextColor(accentColor)
+            text = "✓ COMPLETE BREAK"
+            setTextColor(blackColor)
             val btnBg = android.graphics.drawable.GradientDrawable().apply {
-                setColor(btnColor)
-                setStroke(10, accentColor)
-                cornerRadius = 24f
+                setColor(yellowColor)
+                setStroke(8, blackColor)
+                cornerRadius = 20f
             }
             background = btnBg
-            textSize = 18f
+            textSize = 16f
             typeface = Typeface.DEFAULT_BOLD
-            setPadding(64, 40, 64, 40)
+            setPadding(32, 28, 32, 28)
             setOnClickListener {
                 hide()
+                onBreakFinished()
                 onDismissed()
             }
         }
-        btnWrapper.addView(dismissBtn)
-        card.addView(btnWrapper)
+        btnShadow.addView(dismissBtn)
+        cardContent.addView(btnShadow)
 
+        // Snooze Button underneath
+        val snoozeBtn = Button(context).apply {
+            text = "SNOOZE (+120S)"
+            setTextColor(inkColor)
+            val sBg = android.graphics.drawable.GradientDrawable().apply {
+                setColor(Color.WHITE)
+                setStroke(6, blackColor)
+                cornerRadius = 16f
+            }
+            background = sBg
+            textSize = 12f
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(24, 16, 24, 16)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = 16
+            }
+            setOnClickListener {
+                countdownValue = 20
+                countdownTextView?.text = "20"
+            }
+        }
+        cardContent.addView(snoozeBtn)
+
+        card.addView(cardContent)
         cardWrapper.addView(card)
         root.addView(cardWrapper)
 
@@ -207,7 +362,6 @@ class BreakOverlayManager(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
             type,
-            // Intentionally NO FLAG_NOT_TOUCHABLE so the overlay intercepts taps
             WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS,
             PixelFormat.OPAQUE
@@ -218,22 +372,19 @@ class BreakOverlayManager(
 
     // ── Haptic feedback ───────────────────────────────────────────────────────
 
-    /**
-     * Three short bursts: 150ms on, 100ms off × 3.
-     */
     private fun triggerVibration() {
         val pattern = longArrayOf(0, 150, 100, 150, 100, 150)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vm = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            vm.defaultVibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
+            val vm = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+            vm?.defaultVibrator?.vibrate(VibrationEffect.createWaveform(pattern, -1))
         } else {
             @Suppress("DEPRECATION")
-            val v = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            val v = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                v.vibrate(VibrationEffect.createWaveform(pattern, -1))
+                v?.vibrate(VibrationEffect.createWaveform(pattern, -1))
             } else {
                 @Suppress("DEPRECATION")
-                v.vibrate(pattern, -1)
+                v?.vibrate(pattern, -1)
             }
         }
     }

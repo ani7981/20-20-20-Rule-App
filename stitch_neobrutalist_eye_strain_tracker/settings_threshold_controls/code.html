@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,600,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;background-color:#f9f9f9;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { 'colors': { 'primary': '#6a5f00', 'on-tertiary': '#ffffff', 'tertiary-fixed': '#ffd9df', 'on-secondary-container': '#007242', 'surface-container-high': '#e8e8e8', 'secondary-fixed-dim': '#2ce28d', 'on-secondary': '#ffffff', 'surface-variant': '#e2e2e2', 'surface': '#f9f9f9', 'on-error': '#ffffff', 'error': '#ba1a1a', 'secondary': '#006d3f', 'tertiary-fixed-dim': '#ffb1c1', 'inverse-surface': '#303030', 'on-primary-fixed-variant': '#504700', 'primary-fixed': '#fde400', 'on-primary-container': '#726600', 'primary-fixed-dim': '#dec800', 'on-secondary-fixed-variant': '#00522e', 'on-primary': '#ffffff', 'surface-container-lowest': '#ffffff', 'surface-tint': '#6a5f00', 'on-secondary-fixed': '#002110', 'error-container': '#ffdad6', 'secondary-container': '#53fca4', 'surface-container': '#eeeeee', 'surface-container-low': '#f3f3f3', 'on-surface-variant': '#4b4731', 'inverse-primary': '#dec800', 'on-tertiary-fixed-variant': '#8f003f', 'on-surface': '#1b1b1b', 'surface-dim': '#dadada', 'surface-bright': '#f9f9f9', 'on-error-container': '#93000a', 'inverse-on-surface': '#f1f1f1', 'on-tertiary-fixed': '#3f0018', 'on-tertiary-container': '#bd285d', 'tertiary': '#b31f56', 'surface-container-highest': '#e2e2e2', 'outline-variant': '#cdc7aa', 'on-primary-fixed': '#201c00', 'primary-container': '#ffe600', 'tertiary-container': '#ffdce1', 'background': '#f9f9f9', 'secondary-fixed': '#57ffa7', 'on-background': '#1b1b1b', 'outline': '#7c775f' }, 'borderRadius': { 'DEFAULT': '0.125rem', 'lg': '0.25rem', 'xl': '0.5rem', 'full': '0.75rem' }, 'spacing': { 'space-xs': '8px', 'border-md': '4px', 'space-xl': '24px', 'gutter-mobile': '12px', 'border-sm': '3px', 'space-sm': '12px', 'space-xxs': '4px', 'space-lg': '20px', 'offset-shadow-lg': '6px', 'offset-shadow-md': '4px', 'offset-shadow-sm': '3px', 'space-3xl': '48px', 'space-md': '16px', 'screen-margin-mobile': '16px', 'space-2xl': '32px' }, 'fontFamily': { 'timer-display': ['Space Mono'], 'headline-md': ['Space Grotesk'], 'label-badge': ['Space Grotesk'], 'headline-lg': ['Space Grotesk'], 'label-code': ['Space Mono'], 'headline-sm': ['Space Grotesk'], 'body-sm': ['Space Grotesk'], 'timer-display-mobile': ['Space Mono'], 'body-lg': ['Space Grotesk'], 'display-hero-mobile': ['Space Grotesk'], 'label-telemetry': ['Space Mono'], 'display-hero': ['Space Grotesk'], 'body-md': ['Space Grotesk'] }, 'fontSize': { 'timer-display': ['64px', { 'lineHeight': '64px', 'letterSpacing': '-0.05em', 'fontWeight': '700' }], 'headline-md': ['24px', { 'lineHeight': '28px', 'letterSpacing': '-0.01em', 'fontWeight': '700' }], 'label-badge': ['11px', { 'lineHeight': '12px', 'letterSpacing': '0.06em', 'fontWeight': '700' }], 'headline-lg': ['32px', { 'lineHeight': '36px', 'letterSpacing': '-0.02em', 'fontWeight': '700' }], 'label-code': ['14px', { 'lineHeight': '18px', 'letterSpacing': '0.04em', 'fontWeight': '700' }], 'headline-sm': ['20px', { 'lineHeight': '24px', 'letterSpacing': '0em', 'fontWeight': '700' }], 'body-sm': ['12px', { 'lineHeight': '16px', 'letterSpacing': '0.01em', 'fontWeight': '500' }], 'timer-display-mobile': ['48px', { 'lineHeight': '48px', 'letterSpacing': '-0.04em', 'fontWeight': '700' }], 'body-lg': ['16px', { 'lineHeight': '22px', 'letterSpacing': '0em', 'fontWeight': '500' }], 'display-hero-mobile': ['42px', { 'lineHeight': '44px', 'letterSpacing': '-0.03em', 'fontWeight': '700' }], 'label-telemetry': ['10px', { 'lineHeight': '12px', 'letterSpacing': '0.08em', 'fontWeight': '400' }], 'display-hero': ['56px', { 'lineHeight': '58px', 'letterSpacing': '-0.04em', 'fontWeight': '700' }], 'body-md': ['14px', { 'lineHeight': '20px', 'letterSpacing': '0em', 'fontWeight': '500' }] } } } };</script></head><body class="bg-surface text-on-surface font-body-md flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 px-space-md flex items-center justify-between"><div class="flex items-center gap-space-xs"><img alt="20-20-20 Eye Tracker Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WMpBSFP0SBFMDFYFp42wVGdwXxHVxXFcZE7T3f1-g7orhYbU4xZOSetCGJav4bHn5HB0pouEeJSDz1cEfPx6_OdkVS1tNBF0jSQE8LqbtyHAkb_Mg0naG6cD0XxUugNIqLfL5qy3LlzitMdjsRAA912fi5iS0Wl3YweaFWjvob5RpBI1wqsEJLCXnEGlwExRPkjHQaCB6LXoN1MWroOmjXsNbCLDIwS2-Eb-e8j8sHlQbLXVWOHiEBg4k"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface">20·20·20 TRACKER</span><span class="font-label-badge text-label-badge text-on-surface-variant uppercase">Settings</span></div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="flex flex-col relative w-full px-screen-margin-mobile pt-20 pb-space-3xl bg-surface min-h-screen"><div class="flex flex-col w-full pb-8">
+<!-- Header Section with Sticker Badge -->
+<div class="relative flex flex-col mb-5 mt-1">
+<div class="flex items-center justify-between gap-2">
+<h1 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">
+        PREFERENCES &amp; AI SENSORS
+      </h1>
+<span class="inline-flex items-center px-2 py-0.5 bg-tertiary-fixed text-on-tertiary-fixed font-label-badge text-label-badge uppercase shadow-[2px_2px_0px_#000000] rotate-3 shrink-0 rounded">
+        v2.4 STABLE
+      </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1.5 leading-snug">
+      Tune detection intervals, battery modes, and hardware notifications.
+    </p>
+</div>
+<!-- Threshold Stepper Card -->
+<div class="bg-surface-container-lowest rounded-xl p-5 mb-5 shadow-[4px_4px_0px_#000000]">
+<div class="flex items-center justify-between pb-3 mb-4 bg-surface-container-low -mx-5 -mt-5 px-5 pt-4 rounded-t-xl">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface text-xl">schedule</span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">EYE BREAK INTERVAL</span>
+</div>
+<span class="font-label-telemetry text-label-telemetry bg-surface-container-highest px-2 py-0.5 rounded text-on-surface uppercase font-bold">
+        SYNCED
+      </span>
+</div>
+<!-- Massive Brutalist Stepper -->
+<div class="flex items-center justify-between gap-3 mb-4">
+<button aria-label="Decrease interval" class="w-16 h-16 bg-primary-container text-on-primary-fixed flex items-center justify-center font-headline-lg text-headline-lg rounded shadow-[4px_4px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none transition-transform select-none" id="btn-decrement" type="button">
+<span class="material-symbols-outlined text-3xl font-bold">remove</span>
+</button>
+<div class="flex flex-col items-center justify-center flex-1 py-1">
+<div class="flex items-baseline gap-1">
+<span class="font-timer-display-mobile text-timer-display-mobile text-on-surface font-bold tracking-tighter" id="interval-display">
+            20
+          </span>
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase">MIN</span>
+</div>
+<span class="font-label-telemetry text-label-telemetry text-on-surface-variant uppercase tracking-wider text-center mt-1">
+          Recommended 20-20-20 standard
+        </span>
+</div>
+<button aria-label="Increase interval" class="w-16 h-16 bg-primary-container text-on-primary-fixed flex items-center justify-center font-headline-lg text-headline-lg rounded shadow-[4px_4px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none transition-transform select-none" id="btn-increment" type="button">
+<span class="material-symbols-outlined text-3xl font-bold">add</span>
+</button>
+</div>
+<!-- Quick Preset Pills -->
+<div class="grid grid-cols-4 gap-2 pt-2">
+<button class="preset-pill py-2 px-1 text-center font-label-code text-label-code uppercase rounded shadow-[3px_3px_0px_#000000] bg-surface-container-lowest text-on-surface active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" data-mins="15" type="button">
+        15m
+      </button>
+<button class="preset-pill py-2 px-1 text-center font-label-code text-label-code uppercase rounded shadow-[3px_3px_0px_#000000] bg-secondary-container text-on-secondary-fixed active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" data-mins="20" type="button">
+        20m (Std)
+      </button>
+<button class="preset-pill py-2 px-1 text-center font-label-code text-label-code uppercase rounded shadow-[3px_3px_0px_#000000] bg-surface-container-lowest text-on-surface active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" data-mins="25" type="button">
+        25m
+      </button>
+<button class="preset-pill py-2 px-1 text-center font-label-code text-label-code uppercase rounded shadow-[3px_3px_0px_#000000] bg-surface-container-lowest text-on-surface active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" data-mins="30" type="button">
+        30m
+      </button>
+</div>
+</div>
+<!-- AI Sensitivity & Hardware Toggles Card -->
+<div class="bg-surface-container-low rounded-xl p-5 mb-5 shadow-[4px_4px_0px_#000000]">
+<div class="flex items-center justify-between pb-3 mb-4 bg-surface-container -mx-5 -mt-5 px-5 pt-4 rounded-t-xl">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface text-xl">sensors</span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">DETECTION &amp; HARDWARE SWITCHES</span>
+</div>
+<span class="w-3 h-3 rounded-full bg-secondary-fixed shadow-[1px_1px_0px_#000000]"></span>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Toggle Row 1: Camera Attention -->
+<div class="flex items-center justify-between gap-3 p-3 bg-surface-container-lowest rounded-lg shadow-[3px_3px_0px_#000000]">
+<div class="flex flex-col min-w-0 pr-1">
+<div class="flex items-center gap-1.5">
+<span class="font-body-lg text-body-lg text-on-surface font-bold">Front Camera Attention</span>
+<span class="font-label-telemetry text-label-telemetry px-1 bg-secondary-container text-on-secondary-fixed rounded uppercase font-bold">AI</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 line-clamp-2">
+            Detects gaze direction at 2 FPS ultra-low power mode
+          </span>
+</div>
+<!-- Brutalist Switch 1 -->
+<button aria-checked="true" class="brutalist-switch shrink-0 w-16 h-9 p-1 bg-secondary-container rounded-full flex items-center justify-end shadow-[3px_3px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" data-active-bg="bg-secondary-container" data-inactive-bg="bg-surface-variant" role="switch" type="button">
+<span class="w-7 h-7 bg-surface-container-lowest rounded-full shadow-[2px_2px_0px_#000000] flex items-center justify-center">
+<span class="material-symbols-outlined text-sm font-bold text-on-surface">visibility</span>
+</span>
+</button>
+</div>
+<!-- Toggle Row 2: Notification Shade -->
+<div class="flex items-center justify-between gap-3 p-3 bg-surface-container-lowest rounded-lg shadow-[3px_3px_0px_#000000]">
+<div class="flex flex-col min-w-0 pr-1">
+<div class="flex items-center gap-1.5">
+<span class="font-body-lg text-body-lg text-on-surface font-bold">Live Sensor Shade</span>
+<span class="font-label-telemetry text-label-telemetry px-1 bg-primary-container text-on-primary-fixed rounded uppercase font-bold">SYS</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 line-clamp-2">
+            Show live drain &amp; countdown in Android notification shade
+          </span>
+</div>
+<!-- Brutalist Switch 2 -->
+<button aria-checked="true" class="brutalist-switch shrink-0 w-16 h-9 p-1 bg-primary-container rounded-full flex items-center justify-end shadow-[3px_3px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" data-active-bg="bg-primary-container" data-inactive-bg="bg-surface-variant" role="switch" type="button">
+<span class="w-7 h-7 bg-surface-container-lowest rounded-full shadow-[2px_2px_0px_#000000] flex items-center justify-center">
+<span class="material-symbols-outlined text-sm font-bold text-on-surface">bolt</span>
+</span>
+</button>
+</div>
+<!-- Toggle Row 3: Haptic & Beep -->
+<div class="flex items-center justify-between gap-3 p-3 bg-surface-container-lowest rounded-lg shadow-[3px_3px_0px_#000000]">
+<div class="flex flex-col min-w-0 pr-1">
+<div class="flex items-center gap-1.5">
+<span class="font-body-lg text-body-lg text-on-surface font-bold">Vibrate &amp; Audio Cue</span>
+<span class="font-label-telemetry text-label-telemetry px-1 bg-tertiary-fixed text-on-tertiary-fixed rounded uppercase font-bold">HAPTIC</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 line-clamp-2">
+            Haptic pulse &amp; tone when 20 minutes elapsed
+          </span>
+</div>
+<!-- Brutalist Switch 3 -->
+<button aria-checked="true" class="brutalist-switch shrink-0 w-16 h-9 p-1 bg-tertiary-fixed rounded-full flex items-center justify-end shadow-[3px_3px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" data-active-bg="bg-tertiary-fixed" data-inactive-bg="bg-surface-variant" role="switch" type="button">
+<span class="w-7 h-7 bg-surface-container-lowest rounded-full shadow-[2px_2px_0px_#000000] flex items-center justify-center">
+<span class="material-symbols-outlined text-sm font-bold text-on-surface">vibration</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Profile & Data Card -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-[4px_4px_0px_#000000]">
+<div class="flex items-center justify-between pb-3 mb-4 bg-surface-container-low -mx-5 -mt-5 px-5 pt-4 rounded-t-xl">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface text-xl">account_circle</span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface">PROFILE &amp; TELEMETRY DATA</span>
+</div>
+<span class="font-label-telemetry text-label-telemetry text-on-surface-variant uppercase font-mono">
+        ID: 9021-OPTIC
+      </span>
+</div>
+<!-- Input Field -->
+<div class="flex flex-col gap-1 mb-5">
+<div class="flex items-center justify-between">
+<label class="font-label-badge text-label-badge uppercase text-on-surface font-bold tracking-wider" for="profile-name">
+          USER PROFILE NAME
+        </label>
+<span class="font-label-telemetry text-label-telemetry text-secondary font-bold uppercase">SAVED LOCAL</span>
+</div>
+<div class="relative">
+<input class="w-full h-12 px-3 bg-surface-container-low text-on-surface font-headline-sm text-headline-sm rounded shadow-[3px_3px_0px_#000000] focus:outline-none focus:bg-surface-container-lowest focus:shadow-[4px_4px_0px_#000000] transition-all" id="profile-name" type="text" value="Alex Mercer"/>
+<div class="absolute right-3 top-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-xl">edit</span>
+</div>
+</div>
+</div>
+<!-- Export Action Button -->
+<button class="w-full h-14 bg-tertiary text-on-tertiary rounded flex items-center justify-center gap-2 font-headline-sm text-headline-sm uppercase shadow-[4px_4px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all select-none" id="btn-export" type="button">
+<span class="material-symbols-outlined text-2xl">download</span>
+<span>EXPORT GAZE LOGS (.CSV)</span>
+</button>
+</div>
+</div>
+<script>
+  (function() {
+    // Stepper logic
+    const display = document.getElementById('interval-display');
+    const btnDec = document.getElementById('btn-decrement');
+    const btnInc = document.getElementById('btn-increment');
+    const presets = document.querySelectorAll('.preset-pill');
+    let currentValue = 20;
+
+    function updateValue(val) {
+      currentValue = Math.min(60, Math.max(5, val));
+      if (display) display.textContent = currentValue;
+
+      // Update preset highlighting
+      presets.forEach(pill => {
+        const mins = parseInt(pill.getAttribute('data-mins'), 10);
+        if (mins === currentValue) {
+          pill.className = 'preset-pill py-2 px-1 text-center font-label-code text-label-code uppercase rounded shadow-[3px_3px_0px_#000000] bg-secondary-container text-on-secondary-fixed active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all';
+        } else {
+          pill.className = 'preset-pill py-2 px-1 text-center font-label-code text-label-code uppercase rounded shadow-[3px_3px_0px_#000000] bg-surface-container-lowest text-on-surface active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all';
+        }
+      });
+    }
+
+    if (btnDec) {
+      btnDec.addEventListener('click', () => updateValue(currentValue - 5));
+    }
+    if (btnInc) {
+      btnInc.addEventListener('click', () => updateValue(currentValue + 5));
+    }
+
+    presets.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const mins = parseInt(pill.getAttribute('data-mins'), 10);
+        if (!isNaN(mins)) updateValue(mins);
+      });
+    });
+
+    // Brutalist Switches logic
+    const switches = document.querySelectorAll('.brutalist-switch');
+    switches.forEach(sw => {
+      sw.addEventListener('click', () => {
+        const isChecked = sw.getAttribute('aria-checked') === 'true';
+        const activeBg = sw.getAttribute('data-active-bg') || 'bg-secondary-container';
+        const inactiveBg = sw.getAttribute('data-inactive-bg') || 'bg-surface-variant';
+        
+        if (isChecked) {
+          sw.setAttribute('aria-checked', 'false');
+          sw.classList.remove(activeBg, 'justify-end');
+          sw.classList.add(inactiveBg, 'justify-start');
+        } else {
+          sw.setAttribute('aria-checked', 'true');
+          sw.classList.remove(inactiveBg, 'justify-start');
+          sw.classList.add(activeBg, 'justify-end');
+        }
+      });
+    });
+
+    // Export Feedback Simulation
+    const btnExport = document.getElementById('btn-export');
+    if (btnExport) {
+      btnExport.addEventListener('click', () => {
+        const originalText = btnExport.innerHTML;
+        btnExport.innerHTML = '<span class="material-symbols-outlined text-2xl animate-spin">sync</span><span>DOWNLOADING CSV...</span>';
+        setTimeout(() => {
+          btnExport.innerHTML = '<span class="material-symbols-outlined text-2xl">check_circle</span><span>LOGS EXPORTED (2.4MB)</span>';
+          setTimeout(() => {
+            btnExport.innerHTML = originalText;
+          }, 2000);
+        }, 800);
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]" data-active-classes="bg-primary-container text-on-primary-fixed"><div class="flex justify-around items-center h-20 px-space-xs"><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-space-xs py-space-xxs rounded-lg text-on-surface-variant transition-colors" data-path="tracker" href="#"><span class="material-symbols-outlined text-2xl">visibility</span><span class="font-label-badge text-label-badge uppercase mt-1">Tracker</span></a><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-space-xs py-space-xxs rounded-lg text-on-surface-variant transition-colors" data-path="analytics" href="#"><span class="material-symbols-outlined text-2xl">bar_chart</span><span class="font-label-badge text-label-badge uppercase mt-1">Analytics</span></a><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-space-xs py-space-xxs rounded-lg text-on-surface-variant transition-colors" data-path="rest-mode" href="#"><span class="material-symbols-outlined text-2xl">spa</span><span class="font-label-badge text-label-badge uppercase mt-1">Rest Mode</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-space-xs py-space-xxs rounded-lg transition-colors bg-primary-container text-on-primary-fixed" data-path="settings" href="#"><span class="material-symbols-outlined text-2xl">tune</span><span class="font-label-badge text-label-badge uppercase mt-1">Settings</span></a></div></nav></body></html>
